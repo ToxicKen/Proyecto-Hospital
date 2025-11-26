@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -19,23 +20,17 @@ import java.util.function.Function;
 public class JwtService {
     private static final String SECRET_KEY = "2C8F5B12A9D34F6E7C8D5A12F0B4E9C6D1E3A7B9F0C5E8A7B2D9C4F6E1A3D5B";
 
-    // <--- CAMBIO AQUÍ: Este método ahora crea los 'extra claims'
     public String getToken(UserDetails user) {
         Map<String,Object> extraClaims = new HashMap<>();
 
-        // 1. Verificamos que 'user' es una instancia de nuestra clase User personalizada
-        //    (Asegúrate de que la ruta de importación de 'User' sea correcta)
         if (user instanceof Usuario) {
-            // 2. Hacemos el cast y obtenemos el ID
             var customUser = (Usuario) user;
             extraClaims.put("id", customUser.getIdUsuario());
-
-            // También podrías añadir otros datos si quisieras
-            // extraClaims.put("role", customUser.getRole());
-            // extraClaims.put("email", customUser.getEmail());
+            List<String> roles = customUser.getRoles().stream()
+                    .map(rol -> rol.getNombre().name())
+                    .toList();
+            extraClaims.put("roles", roles);
         }
-
-        // 3. Pasamos los claims al método privado
         return getToken(extraClaims, user);
     }
 
@@ -86,5 +81,15 @@ public class JwtService {
 
     private Boolean isTokenExpired(String token) {
         return getExpirationDateFromToken(token).before(new Date());
+    }
+
+
+    // JwtService
+    public Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
