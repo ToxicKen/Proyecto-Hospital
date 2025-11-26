@@ -1,5 +1,5 @@
 package org.delarosa.app.persona;
 
-public record TelefonoDTO(    Integer numero,
+public record TelefonoDTO(    String numero,
         String tipo) {
 }

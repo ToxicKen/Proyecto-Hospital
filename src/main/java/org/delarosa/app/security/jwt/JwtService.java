@@ -1,13 +1,11 @@
 package org.delarosa.app.security.jwt;
 
-// Asegúrate de importar tu clase de usuario.
-// Estoy asumiendo la ruta, ¡ajústala si es necesario!
-import com.delarosa.sprignboot.hospital.hospital.entities.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.delarosa.app.usuario.Usuario;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 

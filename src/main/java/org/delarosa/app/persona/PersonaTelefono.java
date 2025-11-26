@@ -22,7 +22,7 @@ public class PersonaTelefono {
     private Persona persona;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idTelefono",referencedColumnName = "idPersona")
+    @JoinColumn(name = "idTelefono",referencedColumnName = "idTelefono")
     private Telefono telefono;
 
     private String tipo;

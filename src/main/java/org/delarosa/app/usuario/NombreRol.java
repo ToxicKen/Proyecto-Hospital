@@ -1,4 +1,4 @@
-package org.delarosa.app.paciente;
+package org.delarosa.app.usuario;
 
 public enum NombreRol {
     ROLE_PACIENTE,

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.delarosa.app.persona.PersonaDTO;
 import org.delarosa.app.security.auth.AuthResponse;
+import org.delarosa.app.security.jwt.JwtService;
 import org.delarosa.app.usuario.Usuario;
 import org.delarosa.app.usuario.UsuarioService;
 import org.springframework.security.core.parameters.P;
@@ -19,18 +20,31 @@ public class PacienteServiceImp implements PacienteService {
     private final PacienteRepository pacienteRepo;
     private final AlergiaRepository alergiaRepo;
     private final PadecimentoRepository padecimentoRepo;
+    private final JwtService jwtService;
 
 
     @Transactional
     @Override
     public Paciente crearPaciente(PacienteDTO pacienteDTO) {
+        Usuario usuarioCreado = usuarioService.crearUsuario(
+                pacienteDTO.personaDTO(),
+                pacienteDTO.usuarioDTO()
+        );
+
+        asignarRolPaciente(usuarioCreado);
+
+
         Paciente nvoPaciente = Paciente.builder()
-                .persona(usuarioService.crearUsuario(pacienteDTO.personaDTO(), pacienteDTO.usuarioDTO()).getPersona())
+                .persona(usuarioCreado.getPersona())
                 .build();
         agregarAlergias(nvoPaciente, pacienteDTO);
         agregarPadecimientos(nvoPaciente, pacienteDTO.padecimientos());
         crearHistorialMedico(nvoPaciente,pacienteDTO.historialMedico());
         return pacienteRepo.save(nvoPaciente);
+    }
+
+    private void asignarRolPaciente(Usuario usuario) {
+        usuarioService.addRolPaciente(usuario);
     }
 
     private void agregarAlergias(Paciente paciente, PacienteDTO dto) {
@@ -81,7 +95,14 @@ public class PacienteServiceImp implements PacienteService {
 
     private PacientePadecimiento crearPacientePadecimiento(Paciente paciente, PadecimientoDTO dto) {
         Padecimiento padecimiento = obtenerOPersistirPadecimiento(dto);
+
+        PacientePadecimientoId id = new PacientePadecimientoId(
+                paciente.getIdPaciente(),
+                padecimiento.getIdPadecimiento()
+        );
+
         return PacientePadecimiento.builder()
+                .idPadecimientoPaciente(id)
                 .paciente(paciente)
                 .padecimiento(padecimiento)
                 .descripcion(dto.descripcion())
@@ -111,14 +132,21 @@ public class PacienteServiceImp implements PacienteService {
         return TipoSangre.valueOf(tipoSangre);
     }
 
-    private AuthResponse crearAuhtResponse(){
-        
+
+
+    private AuthResponse crearAuthResponse(Paciente paciente){
+        Usuario usuario = paciente.getPersona().getUsuario();
+        String token = jwtService.getToken(usuario);
+        return AuthResponse.builder().token(jwtService.getToken(usuario)).build();
+
     }
 
     @Override
-public AuthResponse registrarPaciente(Paciente paciente) {
+    @Transactional
+    public AuthResponse registrarPaciente(PacienteDTO pacienteDTO) {
 
+        Paciente paciente = crearPaciente(pacienteDTO);
 
-
-}
+        return crearAuthResponse(paciente);
+    }
 }

@@ -16,7 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,11 +42,17 @@ public class Usuario implements UserDetails {
             name = "UsuarioRol"
             , joinColumns = @JoinColumn(name = "idUsuario")
             , inverseJoinColumns = @JoinColumn(name = "idRol"))
+    @Builder.Default
     private Set<Rol> roles = new HashSet<>();
 
     @PrePersist
     public void prePersist() {
         this.fechaCreacion = LocalDateTime.now();
+    }
+
+    public void addRol(Rol rol) {
+        roles.add(rol);
+        rol.getUsuarios().add(this);
     }
 
     @Override

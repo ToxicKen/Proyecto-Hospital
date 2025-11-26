@@ -40,7 +40,7 @@ public class PersonaServiceImp implements  PersonaService{
 
     private Telefono crearTelefono(TelefonoDTO telefono) {
         Telefono nvoTel =  new Telefono();
-        nvoTel.setNumeroTelefono(telefono.numero());
+        nvoTel.setNumeroTelefono( telefono.numero());
         return nvoTel;
     }
 
@@ -57,4 +57,7 @@ public class PersonaServiceImp implements  PersonaService{
             throw new PersonaExistente("Persona existente");
         }
     }
+
+
+
 }

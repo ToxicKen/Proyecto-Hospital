@@ -15,6 +15,6 @@ public class Telefono {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idTelefono;
-    private Integer numeroTelefono;
+    private String numeroTelefono;
 
 }

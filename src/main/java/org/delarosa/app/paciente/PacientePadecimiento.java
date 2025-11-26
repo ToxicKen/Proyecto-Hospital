@@ -14,14 +14,14 @@ import lombok.NoArgsConstructor;
 public class PacientePadecimiento {
 
     @EmbeddedId
-    private Integer idPadecimientoPaciente;
+    private PacientePadecimientoId idPadecimientoPaciente;
 
     @ManyToOne
-    @MapsId("pacienteId")
+    @MapsId("idPaciente")
     private Paciente paciente;
 
     @ManyToOne
-    @MapsId("padecimientoId")
+    @MapsId("idPadecimiento")
     private Padecimiento padecimiento;
 
     @Column
