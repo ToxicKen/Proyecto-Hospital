@@ -1,4 +1,28 @@
 package org.delarosa.app.empleado;
 
-public class EmpleadoServiceImp {
+import lombok.RequiredArgsConstructor;
+import org.delarosa.app.persona.PersonaDTO;
+import org.delarosa.app.persona.PersonaService;
+import org.delarosa.app.usuario.Usuario;
+import org.delarosa.app.usuario.UsuarioDTO;
+import org.delarosa.app.usuario.UsuarioService;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class EmpleadoServiceImp implements  EmpleadoService {
+    private final UsuarioService usuarioService;
+    private final EmpleadoRepository empleadoRepo;
+    @Override
+    public Empleado crearEmpleado(EmpleadoDTO empleadoDTO) {
+        Usuario usuario = usuarioService.crearUsuario(empleadoDTO.personaDTO(),empleadoDTO.usuarioDTO());
+        Empleado nvo =  new Empleado();
+        nvo.setPersona(usuario.getPersona());
+        nvo.setSalario(empleadoDTO.salario());
+        return empleadoRepo.save(nvo);
+    }
+
+
+
+
 }

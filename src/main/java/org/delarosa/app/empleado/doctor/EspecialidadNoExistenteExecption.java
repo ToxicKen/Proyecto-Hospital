@@ -1,7 +1,7 @@
 package org.delarosa.app.empleado.doctor;
 
-public class EspecialidadNoExistente extends IllegalArgumentException {
-    public EspecialidadNoExistente(String message) {
+public class EspecialidadNoExistenteExecption extends IllegalArgumentException {
+    public EspecialidadNoExistenteExecption(String message) {
         super(message);
     }
 }

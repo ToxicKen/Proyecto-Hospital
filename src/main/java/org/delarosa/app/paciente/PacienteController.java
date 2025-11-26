@@ -21,8 +21,5 @@ public class PacienteController {
         return ResponseEntity.ok("Pong");
     }
 
-    @GetMapping("/doctor/ping")
-    public ResponseEntity<String> doctorPing() {
-        return ResponseEntity.ok("Pong");
-    }
+
 }

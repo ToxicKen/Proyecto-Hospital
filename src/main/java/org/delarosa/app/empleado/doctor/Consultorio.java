@@ -1,4 +1,4 @@
-package org.delarosa.app.doctor;
+package org.delarosa.app.empleado.doctor;
 
 import jakarta.persistence.*;
 import lombok.Getter;
