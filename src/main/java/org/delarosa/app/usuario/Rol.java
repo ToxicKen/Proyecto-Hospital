@@ -19,10 +19,10 @@ public class Rol {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idRol;
 
-    private String nombre;
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true, nullable = false)
+    private NombreRol nombre;
 
     @ManyToMany(mappedBy = "roles")
     private Set<Usuario> usuarios = new HashSet<>();
-    
-
 }

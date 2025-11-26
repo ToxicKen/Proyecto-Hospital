@@ -111,7 +111,9 @@ public class PacienteServiceImp implements PacienteService {
         return TipoSangre.valueOf(tipoSangre);
     }
 
-
+    private AuthResponse crearAuhtResponse(){
+        
+    }
 
     @Override
 public AuthResponse registrarPaciente(Paciente paciente) {

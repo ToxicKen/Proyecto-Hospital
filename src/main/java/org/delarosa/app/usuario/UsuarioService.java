@@ -8,6 +8,8 @@ public interface UsuarioService {
 
     Usuario crearUsuario(PersonaDTO persona, UsuarioDTO usuarioDTO);
     AuthResponse loginUsuario(Usuario usuario);
-
+    void addRolPaciente(Usuario usuario);
+    void addRolRecepcioniste(Usuario usuario);
+    void addRolDoctor(Usuario usuario);
 
 }

@@ -1,7 +1,7 @@
 package org.delarosa.app.security.config;
 
-import com.delarosa.sprignboot.hospital.hospital.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.delarosa.app.usuario.UsuarioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,13 +23,12 @@ public class ApplicationConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
-
     }
 
     @Bean
@@ -39,8 +38,7 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> usuarioRepository.findByCorreoElectronico(username).orElseThrow(()->(new UsernameNotFoundException("User not found")));
+        return username -> usuarioRepository.findByCorreoElectronico(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
     }
-
-
 }

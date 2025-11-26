@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class UsuarioServiceImp implements UsuarioService {
     private final PersonaService personaService;
     private final UsuarioRepository usuarioRepo;
+    private final RolRepository rolRepo;
 
     @Override
     public Usuario crearUsuario(PersonaDTO persona, UsuarioDTO usuarioDTO){
@@ -34,5 +35,32 @@ public class UsuarioServiceImp implements UsuarioService {
     @Override
     public AuthResponse loginUsuario(Usuario usuario) {
         return null;
+    }
+
+    @Override
+    public void addRolDoctor(Usuario usuario) {
+        Rol rolDoctor = buscarOCrearRol(NombreRol.ROLE_DOCTOR);
+        usuario.getRoles().add(rolDoctor);
+        usuarioRepo.save(usuario);
+    }
+
+    private Rol buscarOCrearRol(NombreRol enumRol) {
+        return rolRepo.findByNombre(enumRol)
+                .orElseGet(() -> {
+                    Rol nuevoRol = Rol.builder()
+                            .nombre(enumRol)
+                            .build();
+                    return rolRepo.save(nuevoRol);
+                });
+    }
+
+    @Override
+    public void addRolPaciente(Usuario usuario) {
+
+    }
+
+    @Override
+    public void addRolRecepcioniste(Usuario usuario) {
+
     }
 }
