@@ -58,6 +58,25 @@ public class PersonaServiceImp implements  PersonaService{
         }
     }
 
+    @Override
+    public PersonaDTO mapearPersona(Persona persona) {
+        List<TelefonoDTO> telefonos = mapearTelefonos(persona);
+        return new PersonaDTO(persona.getNombre(),
+                persona.getApellidoM(),
+                persona.getApellidoP(),
+                persona.getCurp(),
+                persona.getCalle(),persona.getColonia(),persona.getNumero(),telefonos);
+    }
+
+    private List<TelefonoDTO> mapearTelefonos(Persona persona){
+        return persona.getTelefonos()
+                .stream()
+                .map(tel -> new TelefonoDTO(tel.getTelefono().getNumeroTelefono(), tel.getTipo()))
+                .toList();
+    }
+
+
+
 
 
 }

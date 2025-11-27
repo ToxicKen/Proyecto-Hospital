@@ -23,7 +23,7 @@ public class RecepcionistaServiceImp implements RecepcionistaService {
     private final UsuarioService usuarioService;
     private final JwtService jwtService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public AuthResponse registrarRecepcionista(EmpleadoDTO empleadoDTO) {
         Recepcionista recepcionista = crearRecepcionista(empleadoDTO);

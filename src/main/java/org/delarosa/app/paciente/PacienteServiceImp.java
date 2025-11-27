@@ -149,4 +149,15 @@ public class PacienteServiceImp implements PacienteService {
 
         return crearAuthResponse(paciente);
     }
+
+
+    public PacienteDTO mapearPaciente(Paciente paciente) {
+        new
+
+    }
+
+    @Override
+    public Paciente obtenerPacienteDesdeToken(String token) {
+        return pacienteRepo.findById(jwtService.getUserIdFromToken(token)).orElseThrow(()-> new PacienteNoExistenteException("Paciente no existente"));
+    }
 }

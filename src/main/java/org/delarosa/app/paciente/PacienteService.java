@@ -6,4 +6,6 @@ import org.delarosa.app.security.auth.AuthResponse;
 public interface PacienteService {
     AuthResponse registrarPaciente(PacienteDTO pacienteDTO);
     Paciente crearPaciente(PacienteDTO pacienteDTO);
+    Paciente obtenerPacienteDesdeToken(String token);
+
 }
