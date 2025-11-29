@@ -2,7 +2,10 @@ package org.delarosa.app.paciente;
 
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.security.auth.AuthResponse;
+import org.delarosa.app.usuario.LoginDTO;
+import org.delarosa.app.usuario.Usuario;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,5 +24,11 @@ public class PacienteController {
         return ResponseEntity.ok("Pong");
     }
 
+    @GetMapping("/paciente/me")
+    public PacienteDatosDTO obtenerDatosPaciente(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        System.out.println(pacienteService.obtenerPacienteDesdeToken(token).getIdPaciente());
+        return pacienteService.obtenerDatosPaciente(token);
+    }
 
 }

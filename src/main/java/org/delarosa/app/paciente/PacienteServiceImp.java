@@ -3,6 +3,7 @@ package org.delarosa.app.paciente;
 import lombok.RequiredArgsConstructor;
 
 import org.delarosa.app.persona.PersonaDTO;
+import org.delarosa.app.persona.PersonaService;
 import org.delarosa.app.security.auth.AuthResponse;
 import org.delarosa.app.security.jwt.JwtService;
 import org.delarosa.app.usuario.Usuario;
@@ -11,6 +12,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,6 +23,7 @@ public class PacienteServiceImp implements PacienteService {
     private final AlergiaRepository alergiaRepo;
     private final PadecimentoRepository padecimentoRepo;
     private final JwtService jwtService;
+    private final PersonaService personaService;
 
 
     @Transactional
@@ -39,7 +42,7 @@ public class PacienteServiceImp implements PacienteService {
                 .build();
         agregarAlergias(nvoPaciente, pacienteDTO);
         agregarPadecimientos(nvoPaciente, pacienteDTO.padecimientos());
-        crearHistorialMedico(nvoPaciente,pacienteDTO.historialMedico());
+        nvoPaciente.setHistorialMedico(crearHistorialMedico(nvoPaciente,pacienteDTO.historialMedico()));
         return pacienteRepo.save(nvoPaciente);
     }
 
@@ -151,13 +154,34 @@ public class PacienteServiceImp implements PacienteService {
     }
 
 
-    public PacienteDTO mapearPaciente(Paciente paciente) {
-        new
+    public PacienteDatosDTO mapearPaciente(Paciente paciente) {
+        return new PacienteDatosDTO(personaService.mapearPersona(paciente.getPersona())
+                ,paciente.getPersona().getUsuario().getCorreoElectronico(),
+                mapearAlergia(paciente),
+                mapearPadecimientosDTO(paciente),
+                mapearHistorialMedicoDTO(paciente)
+        );
+    }
 
+    @Override
+    public PacienteDatosDTO obtenerDatosPaciente(String token) {
+        return mapearPaciente(obtenerPacienteDesdeToken(token));
     }
 
     @Override
     public Paciente obtenerPacienteDesdeToken(String token) {
         return pacienteRepo.findById(jwtService.getUserIdFromToken(token)).orElseThrow(()-> new PacienteNoExistenteException("Paciente no existente"));
     }
+
+    private List<String> mapearAlergia(Paciente paciente) {
+        return paciente.getAlergias().stream().map(Alergia::getNombre).toList();
+    }
+    private HistorialMedicoDTO mapearHistorialMedicoDTO(Paciente paciente) {
+        return new HistorialMedicoDTO(paciente.getHistorialMedico().getPeso(),paciente.getHistorialMedico().getEstatura(),paciente.getHistorialMedico().getTipoSangre().name());
+    }
+
+    private List<PadecimientoDatosDTO> mapearPadecimientosDTO(Paciente paciente) {
+        return paciente.getPadecimientos().stream().map(p-> new PadecimientoDatosDTO(p.getPadecimiento().getNombre(),p.getDescripcion())).toList();
+    }
+
 }
