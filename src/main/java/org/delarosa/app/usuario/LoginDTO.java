@@ -1,4 +1,4 @@
 package org.delarosa.app.usuario;
 
-public record LoginDTO(String usuario, String contrasenia) {
+public record LoginDTO(String correoElectronico, String contrasenia) {
 }

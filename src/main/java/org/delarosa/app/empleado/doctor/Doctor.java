@@ -3,6 +3,9 @@ package org.delarosa.app.empleado.doctor;
 import jakarta.persistence.*;
 import lombok.*;
 import org.delarosa.app.empleado.Empleado;
+import org.delarosa.app.empleado.HorarioEmpleado;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +33,7 @@ public class Doctor {
     @JoinColumn(name = "idConsultorio",referencedColumnName = "idConsultorio")
     private Consultorio consultorio;
 
+  
 
 }
 

@@ -33,5 +33,14 @@ public class Cita {
     @Enumerated(EnumType.STRING)
     private EstatusCita estatus;
 
+    @OneToOne(mappedBy = "cita",cascade = CascadeType.PERSIST,orphanRemoval = true)
+    private OrdenPago ordenPago;
+
+
+    public void asignarOrdenPago(OrdenPago orden) {
+        this.ordenPago = orden;
+        orden.setCita(this); // <--- ESTO ES CRUCIAL
+    }
+
 
 }

@@ -1,4 +1,6 @@
 package org.delarosa.app.citas;
 
-public record CitaDTO() {
+import java.time.LocalDateTime;
+
+public record CitaCreateDTO(Integer idDoctor, LocalDateTime fechaCita) {
 }

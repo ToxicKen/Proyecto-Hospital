@@ -55,5 +55,11 @@ public class DoctorServiceImp implements DoctorService {
         return crearAuthResponse(doctor);
     }
 
+    @Override
+    public Doctor obtenerDoctorById(Integer id) {
+        return doctorRepo.findById(id).orElseThrow(() -> new DoctorNoEncontradoException("Doctor no encontrado"));
+    }
+    
+
 }
 

@@ -88,8 +88,8 @@ public class UsuarioServiceImp implements UsuarioService {
 
     @Override
     public AuthResponse loginUsuario(LoginDTO loginDTO) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.usuario(), loginDTO.contrasenia()));
-        UserDetails user = usuarioRepo.findByCorreoElectronico(loginDTO.usuario()).orElseThrow();
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.correoElectronico(), loginDTO.contrasenia()));
+        UserDetails user = usuarioRepo.findByCorreoElectronico(loginDTO.correoElectronico()).orElseThrow();
         String token = jwtService.getToken(user);
         return AuthResponse.builder().token(token).build();
     }

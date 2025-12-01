@@ -76,7 +76,8 @@ public class PersonaServiceImp implements  PersonaService{
     }
 
 
-
-
-
+    @Override
+    public String obtenerNombreCompletoPersona(Persona persona) {
+        return personaRepo.getNombreCompletoPersona(persona.getIdPersona()).orElse("");
+    }
 }

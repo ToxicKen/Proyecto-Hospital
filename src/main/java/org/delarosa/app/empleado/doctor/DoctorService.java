@@ -8,4 +8,6 @@ import org.delarosa.app.security.auth.AuthResponse;
 public interface DoctorService {
     AuthResponse registrarDoctor(DoctorDTO doctorDTO);
     Doctor crearDoctor(DoctorDTO doctorDTO);
+    Doctor obtenerDoctorById(Integer id);
+
 }

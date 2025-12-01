@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.delarosa.app.persona.Persona;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,4 +23,9 @@ public class Empleado {
 
     @Column(precision =  19,scale = 2)
     private BigDecimal salario;
+
+    @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HorarioEmpleado> horarios;
+
+
 }

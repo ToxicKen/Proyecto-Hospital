@@ -8,4 +8,6 @@ public interface PacienteService {
     Paciente crearPaciente(PacienteDTO pacienteDTO);
     Paciente obtenerPacienteDesdeToken(String token);
     PacienteDatosDTO obtenerDatosPaciente(String token);
+    Paciente obtenerPacienteById(Integer id);
+    Paciente buscarPorCorreo(String email);
 }

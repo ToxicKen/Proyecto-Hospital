@@ -170,7 +170,7 @@ public class PacienteServiceImp implements PacienteService {
 
     @Override
     public Paciente obtenerPacienteDesdeToken(String token) {
-        return pacienteRepo.findById(jwtService.getUserIdFromToken(token)).orElseThrow(()-> new PacienteNoExistenteException("Paciente no existente"));
+        return pacienteRepo.findById(jwtService.getUserIdFromToken(token)).orElseThrow(()-> new PacienteNoEncontradoException("Paciente no existente"));
     }
 
     private List<String> mapearAlergia(Paciente paciente) {
@@ -184,4 +184,14 @@ public class PacienteServiceImp implements PacienteService {
         return paciente.getPadecimientos().stream().map(p-> new PadecimientoDatosDTO(p.getPadecimiento().getNombre(),p.getDescripcion())).toList();
     }
 
+    @Override
+    public Paciente obtenerPacienteById(Integer id) {
+       return pacienteRepo.findById(id).orElseThrow(()-> new PacienteNoEncontradoException("Paciente no encontrado"));
+    }
+
+    @Override
+    public Paciente buscarPorCorreo(String email) {
+            return pacienteRepo.buscarPorEmailDeUsuario(email)
+                    .orElseThrow(() -> new RuntimeException("No se encontró un Paciente vinculado al usuario: " + email));
+    }
 }
