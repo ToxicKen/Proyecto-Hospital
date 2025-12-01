@@ -1,7 +1,6 @@
 package org.delarosa.app.paciente;
 
-import org.delarosa.app.persona.PersonaDTO;
-import org.delarosa.app.security.auth.AuthResponse;
+import org.delarosa.app.modules.security.dto.AuthResponse;
 
 public interface PacienteService {
     AuthResponse registrarPaciente(PacienteDTO pacienteDTO);

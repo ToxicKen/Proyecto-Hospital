@@ -1,10 +1,7 @@
 package org.delarosa.app.empleado;
 
 import lombok.RequiredArgsConstructor;
-import org.delarosa.app.persona.PersonaDTO;
-import org.delarosa.app.persona.PersonaService;
-import org.delarosa.app.usuario.Usuario;
-import org.delarosa.app.usuario.UsuarioDTO;
+import org.delarosa.app.modules.security.entity.Usuario;
 import org.delarosa.app.usuario.UsuarioService;
 import org.springframework.stereotype.Service;
 

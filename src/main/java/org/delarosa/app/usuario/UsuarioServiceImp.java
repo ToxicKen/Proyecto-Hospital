@@ -1,12 +1,12 @@
 package org.delarosa.app.usuario;
 
 import lombok.RequiredArgsConstructor;
-import org.delarosa.app.paciente.Paciente;
+import org.delarosa.app.modules.security.entity.Usuario;
 import org.delarosa.app.persona.Persona;
 import org.delarosa.app.persona.PersonaDTO;
 import org.delarosa.app.persona.PersonaService;
-import org.delarosa.app.security.auth.AuthResponse;
-import org.delarosa.app.security.jwt.JwtService;
+import org.delarosa.app.modules.security.dto.AuthResponse;
+import org.delarosa.app.modules.security.jwt.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;

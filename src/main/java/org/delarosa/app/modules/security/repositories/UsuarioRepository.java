@@ -1,5 +1,6 @@
 package org.delarosa.app.usuario;
 
+import org.delarosa.app.modules.security.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

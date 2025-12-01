@@ -1,4 +1,4 @@
-package org.delarosa.app.security.jwt;
+package org.delarosa.app.modules.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,7 +30,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-
         final String token = getTokenFromRequest(request);
 
         if (token == null) {
@@ -41,16 +40,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = jwtService.getUsernameFromToken(token);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Extraer roles directamente del JWT
             var claims = jwtService.extractAllClaims(token);
             var roles = claims.get("roles", java.util.List.class);
-
             var authorities = ((List<?>) roles).stream()
                     .map(Object::toString)
                     .map(SimpleGrantedAuthority::new)
                     .toList();
 
-            // Crear el authentication token
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(username, null, authorities);
 
@@ -62,6 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
     private String getTokenFromRequest(HttpServletRequest request) {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {

@@ -2,8 +2,7 @@ package org.delarosa.app.empleado.doctor;
 
 
 import lombok.RequiredArgsConstructor;
-import org.delarosa.app.paciente.PacienteDTO;
-import org.delarosa.app.security.auth.AuthResponse;
+import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

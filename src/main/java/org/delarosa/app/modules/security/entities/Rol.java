@@ -1,10 +1,11 @@
-package org.delarosa.app.usuario;
+package org.delarosa.app.modules.security.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.delarosa.app.modules.security.enums.NombreRol;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +27,5 @@ public class Rol {
     @ManyToMany(mappedBy = "roles")
     @Builder.Default
     private Set<Usuario> usuarios = new HashSet<>();
-
-
+    
 }

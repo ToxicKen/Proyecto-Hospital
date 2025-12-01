@@ -2,7 +2,7 @@ package org.delarosa.app.empleado.recepcionista;
 
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.empleado.EmpleadoDTO;
-import org.delarosa.app.security.auth.AuthResponse;
+import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

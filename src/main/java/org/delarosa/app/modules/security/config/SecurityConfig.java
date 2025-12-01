@@ -1,7 +1,7 @@
-package org.delarosa.app.security.config;
+package org.delarosa.app.modules.security.config;
 
 import lombok.RequiredArgsConstructor;
-import org.delarosa.app.security.jwt.JwtAuthenticationFilter;
+import org.delarosa.app.modules.security.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -20,7 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity 
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 

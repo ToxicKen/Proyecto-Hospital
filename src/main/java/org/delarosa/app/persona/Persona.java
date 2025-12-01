@@ -2,7 +2,7 @@ package org.delarosa.app.persona;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.delarosa.app.usuario.Usuario;
+import org.delarosa.app.modules.security.entity.Usuario;
 
 import java.util.ArrayList;
 import java.util.List;

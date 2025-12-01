@@ -1,7 +1,7 @@
-package org.delarosa.app.security.config;
+package org.delarosa.app.modules.security.config;
 
 import lombok.RequiredArgsConstructor;
-import org.delarosa.app.usuario.Usuario;
+import org.delarosa.app.modules.security.entity.Usuario;
 import org.delarosa.app.usuario.UsuarioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +40,7 @@ public class ApplicationConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {

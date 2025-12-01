@@ -1,8 +1,8 @@
 package org.delarosa.app.usuario;
 
-import org.delarosa.app.persona.Persona;
+import org.delarosa.app.modules.security.entity.Usuario;
 import org.delarosa.app.persona.PersonaDTO;
-import org.delarosa.app.security.auth.AuthResponse;
+import org.delarosa.app.modules.security.dto.AuthResponse;
 
 public interface UsuarioService {
 

@@ -1,9 +1,10 @@
-package org.delarosa.app.usuario;
+package org.delarosa.app.modules.security.entities;
 
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.delarosa.app.persona.Persona;
+import org.delarosa.app.usuario.Rol;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,15 +27,17 @@ public class Usuario implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idUsuario;
 
+    @Column(unique = true, nullable = false)
     private String correoElectronico;
 
+    @Column(nullable = false)
     private String contrasenia;
 
+    @Column(nullable = false)
     private LocalDateTime fechaCreacion;
 
-   @OneToOne(cascade = CascadeType.ALL)
-   @JoinColumn(name = "idPersona",
-           referencedColumnName = "idPersona")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "idPersona", referencedColumnName = "idPersona")
     private Persona persona;
 
     @ManyToMany
@@ -60,7 +63,6 @@ public class Usuario implements UserDetails {
         if (roles == null || roles.isEmpty()) {
             return List.of();
         }
-        // Convierte tus roles (ej: "ADMIN") a autoridades de Spring (ej: "ROLE_ADMIN")
         return roles.stream()
                 .map(rol -> new SimpleGrantedAuthority(rol.getNombre().name()))
                 .collect(Collectors.toList());
@@ -74,7 +76,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return  correoElectronico;
+        return correoElectronico;
     }
 
     @Override
@@ -96,6 +98,5 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 
 }
