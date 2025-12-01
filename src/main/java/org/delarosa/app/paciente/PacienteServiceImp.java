@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.delarosa.app.persona.PersonaService;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.delarosa.app.modules.security.jwt.JwtService;
-import org.delarosa.app.modules.security.entity.Usuario;
+import org.delarosa.app.modules.security.entities.Usuario;
 import org.delarosa.app.usuario.UsuarioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

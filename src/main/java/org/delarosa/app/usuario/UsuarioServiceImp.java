@@ -1,7 +1,12 @@
 package org.delarosa.app.usuario;
 
 import lombok.RequiredArgsConstructor;
-import org.delarosa.app.modules.security.entity.Usuario;
+import org.delarosa.app.modules.security.dto.LoginRequest;
+import org.delarosa.app.modules.security.entities.Rol;
+import org.delarosa.app.modules.security.entities.Usuario;
+import org.delarosa.app.modules.security.enums.NombreRol;
+import org.delarosa.app.modules.security.repositories.RolRepository;
+import org.delarosa.app.modules.security.repositories.UsuarioRepository;
 import org.delarosa.app.persona.Persona;
 import org.delarosa.app.persona.PersonaDTO;
 import org.delarosa.app.persona.PersonaService;
@@ -87,9 +92,9 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    public AuthResponse loginUsuario(LoginDTO loginDTO) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.correoElectronico(), loginDTO.contrasenia()));
-        UserDetails user = usuarioRepo.findByCorreoElectronico(loginDTO.correoElectronico()).orElseThrow();
+    public AuthResponse loginUsuario(LoginRequest loginRequest) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.correoElectronico(), loginRequest.contrasenia()));
+        UserDetails user = usuarioRepo.findByCorreoElectronico(loginRequest.correoElectronico()).orElseThrow();
         String token = jwtService.getToken(user);
         return AuthResponse.builder().token(token).build();
     }

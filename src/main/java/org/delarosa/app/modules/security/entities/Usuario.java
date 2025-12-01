@@ -4,7 +4,6 @@ package org.delarosa.app.modules.security.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.delarosa.app.persona.Persona;
-import org.delarosa.app.usuario.Rol;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

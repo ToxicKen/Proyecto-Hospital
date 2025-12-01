@@ -27,5 +27,5 @@ public class Rol {
     @ManyToMany(mappedBy = "roles")
     @Builder.Default
     private Set<Usuario> usuarios = new HashSet<>();
-    
+
 }

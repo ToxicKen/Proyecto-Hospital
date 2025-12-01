@@ -1,4 +1,4 @@
-package org.delarosa.app.usuario;
+package org.delarosa.app.modules.security.dto;
 
-public record LoginDTO(String correoElectronico, String contrasenia) {
+public record LoginRequest(String correoElectronico, String contrasenia) {
 }

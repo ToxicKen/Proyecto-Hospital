@@ -1,4 +1,4 @@
-package org.delarosa.app.usuario;
+package org.delarosa.app.modules.security.enums;
 
 public enum NombreRol {
     ROLE_PACIENTE,

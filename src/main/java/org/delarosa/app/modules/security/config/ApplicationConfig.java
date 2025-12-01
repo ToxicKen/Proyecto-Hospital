@@ -1,8 +1,8 @@
 package org.delarosa.app.modules.security.config;
 
 import lombok.RequiredArgsConstructor;
-import org.delarosa.app.modules.security.entity.Usuario;
-import org.delarosa.app.usuario.UsuarioRepository;
+import org.delarosa.app.modules.security.entities.Usuario;
+import org.delarosa.app.modules.security.repositories.UsuarioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
