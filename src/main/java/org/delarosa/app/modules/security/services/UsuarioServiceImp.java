@@ -1,4 +1,4 @@
-package org.delarosa.app.usuario;
+package org.delarosa.app.modules.security.services;
 
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.security.dto.LoginRequest;
@@ -8,9 +8,9 @@ import org.delarosa.app.modules.security.entities.Usuario;
 import org.delarosa.app.modules.security.enums.NombreRol;
 import org.delarosa.app.modules.security.repositories.RolRepository;
 import org.delarosa.app.modules.security.repositories.UsuarioRepository;
-import org.delarosa.app.persona.Persona;
-import org.delarosa.app.persona.PersonaDTO;
-import org.delarosa.app.persona.PersonaService;
+import org.delarosa.app.modules.general.entities.Persona;
+import org.delarosa.app.modules.general.dtos.RegistroPersonaRequest;
+import org.delarosa.app.modules.general.services.PersonaService;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.delarosa.app.modules.security.jwt.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +44,7 @@ public class UsuarioServiceImp implements UsuarioService {
     // --- Registro y Creación ---
 
     @Override
-    public Usuario crearUsuario(PersonaDTO persona, RegistroUsuarioRequest registroUsuarioRequest) {
+    public Usuario crearUsuario(RegistroPersonaRequest persona, RegistroUsuarioRequest registroUsuarioRequest) {
         verificarCorreoDuplicado(registroUsuarioRequest.correoElectronico());
     
         Persona personaCreada = personaService.crearPersona(persona);
@@ -109,11 +108,8 @@ public class UsuarioServiceImp implements UsuarioService {
                 });
     }
 
-
     public RegistroUsuarioRequest mapearUsuario(Usuario usuario) {
         return new RegistroUsuarioRequest(usuario.getUsername(), "");
     }
-
-
 
 }

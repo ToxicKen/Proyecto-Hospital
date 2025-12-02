@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.delarosa.app.persona.Persona;
+import org.delarosa.app.modules.general.entities.Persona;
 
 import java.util.ArrayList;
 import java.util.List;

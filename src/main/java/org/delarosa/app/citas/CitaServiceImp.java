@@ -3,12 +3,12 @@ package org.delarosa.app.citas;
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.DoctorNoTrabajaEseDia;
 import org.delarosa.app.HorarioNoDisponibleException;
-import org.delarosa.app.empleado.HorarioEmpleado;
-import org.delarosa.app.empleado.doctor.Doctor;
-import org.delarosa.app.empleado.doctor.DoctorService;
+import org.delarosa.app.modules.personal.entities.HorarioEmpleado;
+import org.delarosa.app.modules.personal.entities.Doctor;
+import org.delarosa.app.modules.personal.services.DoctorService;
 import org.delarosa.app.paciente.Paciente;
 import org.delarosa.app.paciente.PacienteService;
-import org.delarosa.app.persona.PersonaService;
+import org.delarosa.app.modules.general.services.PersonaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,14 +1,15 @@
-package org.delarosa.app.usuario;
+package org.delarosa.app.modules.security.services;
+
 
 import org.delarosa.app.modules.security.dto.LoginRequest;
 import org.delarosa.app.modules.security.dto.RegistroUsuarioRequest;
 import org.delarosa.app.modules.security.entities.Usuario;
-import org.delarosa.app.persona.PersonaDTO;
+import org.delarosa.app.modules.general.dtos.RegistroPersonaRequest;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 
 public interface UsuarioService {
 
-    Usuario crearUsuario(PersonaDTO persona, RegistroUsuarioRequest registroUsuarioRequest);
+    Usuario crearUsuario(RegistroPersonaRequest persona, RegistroUsuarioRequest registroUsuarioRequest);
 
     RegistroUsuarioRequest mapearUsuario(Usuario usuario);
 

@@ -1,6 +1,11 @@
 package org.delarosa.app.persona;
 
 import lombok.RequiredArgsConstructor;
+import org.delarosa.app.modules.general.dtos.RegistroPersonaRequest;
+import org.delarosa.app.modules.general.entities.Persona;
+import org.delarosa.app.modules.general.exceptions.PersonaYaExistenteException;
+import org.delarosa.app.modules.general.repositories.PersonaRepository;
+import org.delarosa.app.modules.general.services.PersonaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,32 +13,48 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class PersonaServiceImp implements  PersonaService{
+public class PersonaServiceImp implements PersonaService {
     private final PersonaRepository personaRepo;
+
+    // --- Creación y guardado de Persona ---
 
     @Transactional
     @Override
-    public Persona crearPersona(PersonaDTO personaDTO) {
-        validarPersonaExistente(personaDTO);
-        Persona  personaCreada = crearEntidadPersona(personaDTO);
-        agregarTelefonos(personaCreada,personaDTO);
+    public Persona crearPersona(RegistroPersonaRequest registroPersonaRequest) {
+        validarPersonaExistente(registroPersonaRequest);
+        Persona  personaCreada = crearEntidadPersona(registroPersonaRequest);
+        agregarTelefonos(personaCreada, registroPersonaRequest);
         return personaRepo.save(personaCreada);
     }
 
-    private Persona crearEntidadPersona(PersonaDTO personaDTO) {
+    // --- Crear Response de Persona mapando una Persona a DTO ---
+
+    @Override
+    public RegistroPersonaRequest mapearPersona(Persona persona) {
+        List<TelefonoDTO> telefonos = mapearTelefonos(persona);
+        return new RegistroPersonaRequest(persona.getNombre(),
+                persona.getApellidoM(),
+                persona.getApellidoP(),
+                persona.getCurp(),
+                persona.getCalle(),persona.getColonia(),persona.getNumero(),telefonos);
+    }
+
+
+
+    private Persona crearEntidadPersona(RegistroPersonaRequest registroPersonaRequest) {
         return   Persona.builder()
-                .nombre(personaDTO.nombre())
-                .apellidoP(personaDTO.apellidoP())
-                .apellidoM(personaDTO.apellidoM())
-                .calle(personaDTO.calle())
-                .colonia(personaDTO.colonia())
-                .numero(personaDTO.numero())
-                .curp(personaDTO.curp())
+                .nombre(registroPersonaRequest.nombre())
+                .apellidoP(registroPersonaRequest.apellidoP())
+                .apellidoM(registroPersonaRequest.apellidoM())
+                .calle(registroPersonaRequest.calle())
+                .colonia(registroPersonaRequest.colonia())
+                .numero(registroPersonaRequest.numero())
+                .curp(registroPersonaRequest.curp())
                 .build();
     }
 
-    private void agregarTelefonos(Persona persona,PersonaDTO personaDTO) {
-        List<PersonaTelefono> telefonos = personaDTO.telefonos().stream().map(t-> crearPersonaTelefono(persona,t)).toList();
+    private void agregarTelefonos(Persona persona, RegistroPersonaRequest registroPersonaRequest) {
+        List<PersonaTelefono> telefonos = registroPersonaRequest.telefonos().stream().map(t-> crearPersonaTelefono(persona,t)).toList();
         persona.setTelefonos(telefonos);
     }
 
@@ -52,20 +73,10 @@ public class PersonaServiceImp implements  PersonaService{
                 .build();
     }
 
-    private void validarPersonaExistente(PersonaDTO personaDTO) {
-        if(personaRepo.existsByCurp(personaDTO.curp())){
-            throw new PersonaExistente("Persona existente");
+    private void validarPersonaExistente(RegistroPersonaRequest registroPersonaRequest) {
+        if(personaRepo.existsByCurp(registroPersonaRequest.curp())){
+            throw new PersonaYaExistenteException("Persona existente");
         }
-    }
-
-    @Override
-    public PersonaDTO mapearPersona(Persona persona) {
-        List<TelefonoDTO> telefonos = mapearTelefonos(persona);
-        return new PersonaDTO(persona.getNombre(),
-                persona.getApellidoM(),
-                persona.getApellidoP(),
-                persona.getCurp(),
-                persona.getCalle(),persona.getColonia(),persona.getNumero(),telefonos);
     }
 
     private List<TelefonoDTO> mapearTelefonos(Persona persona){

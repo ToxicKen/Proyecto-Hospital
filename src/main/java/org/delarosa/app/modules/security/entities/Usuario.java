@@ -3,14 +3,13 @@ package org.delarosa.app.modules.security.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.delarosa.app.persona.Persona;
+import org.delarosa.app.modules.general.entities.Persona;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +21,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Usuario implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idUsuario;
@@ -44,8 +44,7 @@ public class Usuario implements UserDetails {
             name = "UsuarioRol"
             , joinColumns = @JoinColumn(name = "idUsuario",nullable = false)
             , inverseJoinColumns = @JoinColumn(name = "idRol",nullable = false))
-    @Builder.Default
-    private Set<Rol> roles = new HashSet<>();
+    private Set<Rol> roles;
 
     @PrePersist
     public void prePersist() {
@@ -57,8 +56,7 @@ public class Usuario implements UserDetails {
         rol.getUsuarios().add(this);
     }
 
-
-                                            /* Métodos de userDetails*/
+    // --- Metodos de UserDetails ---
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

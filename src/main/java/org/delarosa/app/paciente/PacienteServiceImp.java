@@ -2,7 +2,7 @@ package org.delarosa.app.paciente;
 
 import lombok.RequiredArgsConstructor;
 
-import org.delarosa.app.persona.PersonaService;
+import org.delarosa.app.modules.general.services.PersonaService;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.delarosa.app.modules.security.jwt.JwtService;
 import org.delarosa.app.modules.security.entities.Usuario;
@@ -27,7 +27,7 @@ public class PacienteServiceImp implements PacienteService {
     @Override
     public Paciente crearPaciente(PacienteDTO pacienteDTO) {
         Usuario usuarioCreado = usuarioService.crearUsuario(
-                pacienteDTO.personaDTO(),
+                pacienteDTO.registroPersonaRequest(),
                 pacienteDTO.registroUsuarioRequest()
         );
 

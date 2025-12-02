@@ -2,7 +2,7 @@ package org.delarosa.app.citas;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.delarosa.app.empleado.doctor.Doctor;
+import org.delarosa.app.modules.personal.entities.Doctor;
 import org.delarosa.app.paciente.Paciente;
 
 import java.time.LocalDateTime;

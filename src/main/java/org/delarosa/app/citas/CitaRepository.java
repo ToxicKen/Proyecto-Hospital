@@ -1,6 +1,6 @@
 package org.delarosa.app.citas;
 
-import org.delarosa.app.empleado.doctor.Doctor;
+import org.delarosa.app.modules.personal.entities.Doctor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
