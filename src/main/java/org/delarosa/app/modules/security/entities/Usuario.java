@@ -36,14 +36,14 @@ public class Usuario implements UserDetails {
     private LocalDateTime fechaCreacion;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idPersona", referencedColumnName = "idPersona")
+    @JoinColumn(name = "idPersona", referencedColumnName = "idPersona",nullable = false)
     private Persona persona;
 
     @ManyToMany
     @JoinTable(
             name = "UsuarioRol"
-            , joinColumns = @JoinColumn(name = "idUsuario")
-            , inverseJoinColumns = @JoinColumn(name = "idRol"))
+            , joinColumns = @JoinColumn(name = "idUsuario",nullable = false)
+            , inverseJoinColumns = @JoinColumn(name = "idRol",nullable = false))
     @Builder.Default
     private Set<Rol> roles = new HashSet<>();
 
@@ -57,6 +57,9 @@ public class Usuario implements UserDetails {
         rol.getUsuarios().add(this);
     }
 
+
+                                            /* Métodos de userDetails*/
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (roles == null || roles.isEmpty()) {
@@ -66,7 +69,6 @@ public class Usuario implements UserDetails {
                 .map(rol -> new SimpleGrantedAuthority(rol.getNombre().name()))
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public String getPassword() {

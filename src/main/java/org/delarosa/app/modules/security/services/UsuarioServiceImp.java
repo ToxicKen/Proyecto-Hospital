@@ -2,6 +2,7 @@ package org.delarosa.app.usuario;
 
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.security.dto.LoginRequest;
+import org.delarosa.app.modules.security.dto.RegistroUsuarioRequest;
 import org.delarosa.app.modules.security.entities.Rol;
 import org.delarosa.app.modules.security.entities.Usuario;
 import org.delarosa.app.modules.security.enums.NombreRol;
@@ -23,37 +24,37 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UsuarioServiceImp implements UsuarioService {
+
     private final PersonaService personaService;
+    private final JwtService jwtService;
     private final UsuarioRepository usuarioRepo;
     private final RolRepository rolRepo;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
 
+    // --- Autenticación (Login) ---
 
     @Override
-    public Usuario crearUsuario(PersonaDTO persona, UsuarioDTO usuarioDTO){
-        Optional<Usuario> existe = usuarioRepo.findByCorreoElectronico(usuarioDTO.correoElectronico());
-        if(existe.isPresent()){
-            throw new IllegalStateException("Ya existe una persona con ese correo: " + usuarioDTO.correoElectronico());
-        }
+    public AuthResponse loginUsuario(LoginRequest loginRequest) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.correoElectronico(), loginRequest.contrasenia()));
+        UserDetails user = usuarioRepo.findByCorreoElectronico(loginRequest.correoElectronico()).orElseThrow();
+        String token = jwtService.getToken(user);
+        return AuthResponse.builder().token(token).build();
+    }
+
+    // --- Registro y Creación ---
+
+    @Override
+    public Usuario crearUsuario(PersonaDTO persona, RegistroUsuarioRequest registroUsuarioRequest) {
+        verificarCorreoDuplicado(registroUsuarioRequest.correoElectronico());
+    
         Persona personaCreada = personaService.crearPersona(persona);
-        Usuario nvoUsuario = crearEntidadUsuario(personaCreada, usuarioDTO);
-       vincularUsuarioPersona(nvoUsuario,personaCreada);
-       return usuarioRepo.save(nvoUsuario);
+        Usuario nvoUsuario = crearEntidadUsuario(personaCreada, registroUsuarioRequest);
+        vincularUsuarioPersona(nvoUsuario, personaCreada);
+        return usuarioRepo.save(nvoUsuario);
     }
 
-    private Usuario crearEntidadUsuario(Persona persona,UsuarioDTO dto){
-        return Usuario.builder()
-                .correoElectronico(dto.correoElectronico())
-                .contrasenia(passwordEncoder.encode(dto.contrasenia()))
-                .persona(persona)
-                .build();
-    }
-
-    private void vincularUsuarioPersona(Usuario usuario, Persona persona) {
-        persona.setUsuario(usuario);
-    }
+    // --- Gestion de Roles ---
 
     @Override
     public void addRolDoctor(Usuario usuario) {
@@ -76,6 +77,27 @@ public class UsuarioServiceImp implements UsuarioService {
         usuarioRepo.save(usuario);
     }
 
+    // --- Métodos de ayuda xd ---
+
+    private void verificarCorreoDuplicado(String correoElectronico) {
+            if(usuarioRepo.findByCorreoElectronico(correoElectronico).isPresent()) {
+                throw  new IllegalStateException("Ya existe un usuario con el correo: " + correoElectronico);
+            }
+    }
+
+
+    private Usuario crearEntidadUsuario(Persona persona, RegistroUsuarioRequest dto) {
+        return Usuario.builder()
+                .correoElectronico(dto.correoElectronico())
+                .contrasenia(passwordEncoder.encode(dto.contrasenia()))
+                .persona(persona)
+                .build();
+    }
+
+    private void vincularUsuarioPersona(Usuario usuario, Persona persona) {
+        persona.setUsuario(usuario);
+    }
+
 
     private Rol buscarOCrearRol(NombreRol enumRol) {
         return rolRepo.findByNombre(enumRol)
@@ -87,16 +109,11 @@ public class UsuarioServiceImp implements UsuarioService {
                 });
     }
 
-    public UsuarioDTO mapearUsuario(Usuario usuario) {
-        return new UsuarioDTO(usuario.getUsername(), "");
+
+    public RegistroUsuarioRequest mapearUsuario(Usuario usuario) {
+        return new RegistroUsuarioRequest(usuario.getUsername(), "");
     }
 
-    @Override
-    public AuthResponse loginUsuario(LoginRequest loginRequest) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.correoElectronico(), loginRequest.contrasenia()));
-        UserDetails user = usuarioRepo.findByCorreoElectronico(loginRequest.correoElectronico()).orElseThrow();
-        String token = jwtService.getToken(user);
-        return AuthResponse.builder().token(token).build();
-    }
+
 
 }

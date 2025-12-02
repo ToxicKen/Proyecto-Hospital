@@ -28,7 +28,7 @@ public class PacienteServiceImp implements PacienteService {
     public Paciente crearPaciente(PacienteDTO pacienteDTO) {
         Usuario usuarioCreado = usuarioService.crearUsuario(
                 pacienteDTO.personaDTO(),
-                pacienteDTO.usuarioDTO()
+                pacienteDTO.registroUsuarioRequest()
         );
 
         asignarRolPaciente(usuarioCreado);

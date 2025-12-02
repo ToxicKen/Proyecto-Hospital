@@ -24,11 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
     @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String token = getTokenFromRequest(request);
 
@@ -42,16 +38,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             var claims = jwtService.extractAllClaims(token);
             var roles = claims.get("roles", java.util.List.class);
-            var authorities = ((List<?>) roles).stream()
-                    .map(Object::toString)
-                    .map(SimpleGrantedAuthority::new)
-                    .toList();
+            var authorities = ((List<?>) roles).stream().map(Object::toString).map(SimpleGrantedAuthority::new).toList();
 
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(username, null, authorities);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
 
-            authToken.setDetails(new org.springframework.security.web.authentication.WebAuthenticationDetailsSource()
-                    .buildDetails(request));
+            authToken.setDetails(new org.springframework.security.web.authentication.WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }

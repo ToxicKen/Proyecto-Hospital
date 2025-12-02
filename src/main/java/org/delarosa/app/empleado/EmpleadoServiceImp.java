@@ -12,7 +12,7 @@ public class EmpleadoServiceImp implements  EmpleadoService {
     private final EmpleadoRepository empleadoRepo;
     @Override
     public Empleado crearEmpleado(EmpleadoDTO empleadoDTO) {
-        Usuario usuario = usuarioService.crearUsuario(empleadoDTO.personaDTO(),empleadoDTO.usuarioDTO());
+        Usuario usuario = usuarioService.crearUsuario(empleadoDTO.personaDTO(),empleadoDTO.registroUsuarioRequest());
         Empleado nvo =  new Empleado();
         nvo.setPersona(usuario.getPersona());
         nvo.setSalario(empleadoDTO.salario());
