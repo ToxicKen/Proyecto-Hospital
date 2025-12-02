@@ -1,4 +1,4 @@
-package org.delarosa.app.paciente;
+package org.delarosa.app.modules.paciente;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,8 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.delarosa.app.modules.general.entities.Persona;
+import org.delarosa.app.modules.paciente.entities.Alergia;
+import org.delarosa.app.modules.paciente.entities.HistorialMedico;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Paciente {
+
     @Id
     private Integer idPaciente;
 
@@ -25,18 +27,15 @@ public class Paciente {
     private Persona persona;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<PacientePadecimiento> padecimientos = new ArrayList<>();
+    private List<PacientePadecimiento> padecimientos;
 
     @ManyToMany
     @JoinTable(name = "AlergiaPaciente",
             joinColumns = @JoinColumn(name = "idPaciente"),
             inverseJoinColumns = @JoinColumn(name = "idAlergia"))
-    @Builder.Default
-    private List<Alergia> alergias = new ArrayList<>();
-
-
-    @OneToOne(mappedBy = "paciente",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Alergia> alergias;
+    
+    @OneToOne(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private HistorialMedico historialMedico;
 
 }

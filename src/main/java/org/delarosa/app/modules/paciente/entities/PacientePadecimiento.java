@@ -1,10 +1,11 @@
-package org.delarosa.app.paciente;
+package org.delarosa.app.modules.paciente;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.delarosa.app.modules.paciente.entities.Paciente;
 
 @Entity
 @Data

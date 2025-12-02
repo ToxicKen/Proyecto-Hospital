@@ -19,12 +19,12 @@ public class PersonaTelefono {
     private Integer idPersonaTelefono;
 
     @ManyToOne
-    @JoinColumn(name = "idPersona",referencedColumnName = "idPersona")
+    @JoinColumn(name = "idPersona", referencedColumnName = "idPersona",nullable = false)
     private Persona persona;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idTelefono",referencedColumnName = "idTelefono")
+    @JoinColumn(name = "idTelefono", referencedColumnName = "idTelefono",nullable = false)
     private Telefono telefono;
-
+    
     private String tipo;
 }

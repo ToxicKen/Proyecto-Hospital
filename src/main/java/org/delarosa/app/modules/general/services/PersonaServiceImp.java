@@ -1,11 +1,14 @@
-package org.delarosa.app.persona;
+package org.delarosa.app.modules.general.services;
 
 import lombok.RequiredArgsConstructor;
+import org.delarosa.app.modules.general.dtos.PersonaResponse;
 import org.delarosa.app.modules.general.dtos.RegistroPersonaRequest;
 import org.delarosa.app.modules.general.entities.Persona;
 import org.delarosa.app.modules.general.exceptions.PersonaYaExistenteException;
 import org.delarosa.app.modules.general.repositories.PersonaRepository;
-import org.delarosa.app.modules.general.services.PersonaService;
+import org.delarosa.app.persona.PersonaTelefono;
+import org.delarosa.app.persona.Telefono;
+import org.delarosa.app.persona.TelefonoDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PersonaServiceImp implements PersonaService {
+
     private final PersonaRepository personaRepo;
 
     // --- Creación y guardado de Persona ---
@@ -27,17 +31,35 @@ public class PersonaServiceImp implements PersonaService {
         return personaRepo.save(personaCreada);
     }
 
-    // --- Crear Response de Persona mapando una Persona a DTO ---
+    // --- Crear PersonaResponse a partir de una entidad Persona ---
 
     @Override
-    public RegistroPersonaRequest mapearPersona(Persona persona) {
+    public PersonaResponse obetenerResponsePersona(Persona persona) {
         List<TelefonoDTO> telefonos = mapearTelefonos(persona);
-        return new RegistroPersonaRequest(persona.getNombre(),
-                persona.getApellidoM(),
-                persona.getApellidoP(),
+        return new PersonaResponse(persona.getIdPersona(),
+                obtenerNombreCompletoPersona(persona),
                 persona.getCurp(),
-                persona.getCalle(),persona.getColonia(),persona.getNumero(),telefonos);
+                obtenerDireccionCompleta(persona)
+                , telefonos);
     }
+
+    // --- Obtener nombre Completo de una Persona ---
+    @Override
+    public String obtenerNombreCompletoPersona(Persona persona) {
+        return personaRepo.getNombreCompletoPersona(persona.getIdPersona()).orElse("");
+    }
+
+    // --- Métodos de apoyo ---
+
+
+
+    private String obtenerDireccionCompleta(Persona persona) {
+        return persona.getCalle() + " " +
+                persona.getColonia() + " " +
+                persona.getNumero();
+    }
+
+
 
 
 
@@ -87,8 +109,4 @@ public class PersonaServiceImp implements PersonaService {
     }
 
 
-    @Override
-    public String obtenerNombreCompletoPersona(Persona persona) {
-        return personaRepo.getNombreCompletoPersona(persona.getIdPersona()).orElse("");
-    }
 }
