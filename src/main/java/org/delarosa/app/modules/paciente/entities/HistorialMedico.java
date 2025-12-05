@@ -1,10 +1,11 @@
-package org.delarosa.app.modules.paciente;
+package org.delarosa.app.modules.paciente.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.delarosa.app.modules.paciente.enums.TipoSangre;
 
 @Entity
 @Data
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class HistorialMedico {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idHistorialMedico;

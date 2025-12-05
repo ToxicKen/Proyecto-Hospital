@@ -1,13 +1,21 @@
-package org.delarosa.app.citas;
+package org.delarosa.app.modules.clinico.services;
 
 import lombok.RequiredArgsConstructor;
-import org.delarosa.app.DoctorNoTrabajaEseDia;
-import org.delarosa.app.HorarioNoDisponibleException;
+import org.delarosa.app.modules.clinico.enums.EstatusCita;
+import org.delarosa.app.modules.clinico.exceptions.CitaNoEncontradaException;
+import org.delarosa.app.modules.clinico.exceptions.FechaFueraRangoException;
+import org.delarosa.app.modules.clinico.dtos.CitaResponse;
+import org.delarosa.app.modules.clinico.dtos.CrearCitaRequest;
+import org.delarosa.app.modules.clinico.entities.Cita;
+import org.delarosa.app.modules.clinico.exceptions.CitaPendienteException;
+import org.delarosa.app.modules.clinico.repositories.CitaRepository;
+import org.delarosa.app.modules.paciente.entities.Paciente;
+import org.delarosa.app.modules.paciente.services.PacienteService;
+import org.delarosa.app.modules.personal.exceptions.DoctorNoTrabajaEseDiaException;
+import org.delarosa.app.modules.personal.exceptions.HorarioNoDisponibleException;
 import org.delarosa.app.modules.personal.entities.HorarioEmpleado;
 import org.delarosa.app.modules.personal.entities.Doctor;
 import org.delarosa.app.modules.personal.services.DoctorService;
-import org.delarosa.app.paciente.Paciente;
-import org.delarosa.app.paciente.PacienteService;
 import org.delarosa.app.modules.general.services.PersonaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,37 +32,45 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CitaServiceImp implements CitaService {
 
-    private final CitaRepository citaRepository;
     private final DoctorService doctorService;
     private final PacienteService pacienteService;
     private final PagoService pagoService;
     private final PersonaService personaService;
+    private final CitaRepository citaRepository;
 
+    // --- Crear Cita ---
 
     @Override
     @Transactional
-    public CitaResponseDTO crearCita(CitaCreateDTO citaCreateDTO,Paciente paciente) {
-        if (!esFechaEnRangoPermitido(citaCreateDTO.fechaCita())) {
+    public CitaResponse crearCita(CrearCitaRequest crearCitaRequest, Paciente paciente) {
+        if (!esFechaEnRangoPermitido(crearCitaRequest.fechaCita())) {
             throw new FechaFueraRangoException("La fecha debe ser con al menos 48 horas de anticipo y máximo 3 meses.");
         }
 
-        Doctor doctor = doctorService.obtenerDoctorById(citaCreateDTO.idDoctor());
+        Doctor doctor = doctorService.obtenerDoctorById(crearCitaRequest.idDoctor());
 
         if (existeCitaPendienteConElDoctor(paciente, doctor)) {
             throw new CitaPendienteException("El paciente ya tiene una cita pendiente con este doctor.");
         }
-        validarDisponibilidadDoctor(doctor, citaCreateDTO.fechaCita());
+        validarDisponibilidadDoctor(doctor, crearCitaRequest.fechaCita());
 
-        Cita nuevaCita = crearEntidadCita(citaCreateDTO, doctor, paciente);
+        Cita nuevaCita = crearEntidadCita(crearCitaRequest, doctor, paciente);
         nuevaCita.asignarOrdenPago( pagoService.crearOrdenPago(nuevaCita,obtenerMontoDeCita(nuevaCita)));
         Cita citaGuardada = citaRepository.save(nuevaCita);
 
         return mapToResponseDTO(citaGuardada);
     }
 
-    // --- MÉTODOS DE MAPEO (DTO <-> Entidad) ---
+    // --- Obtener cita por Id ---
 
-    private Cita crearEntidadCita(CitaCreateDTO dto, Doctor doctor, Paciente paciente) {
+    @Override
+    public Cita obtenerById(Integer id) {
+        return citaRepository.findById(id).orElseThrow(()-> new CitaNoEncontradaException("Cita no encontrada"));
+    }
+
+    // --- Metodos de apoyo ---
+
+    private Cita crearEntidadCita(CrearCitaRequest dto, Doctor doctor, Paciente paciente) {
         Cita cita = new Cita();
         cita.setFechaSolicitud(LocalDateTime.now());
         cita.setDoctor(doctor);
@@ -64,8 +80,8 @@ public class CitaServiceImp implements CitaService {
         return cita;
     }
 
-    private CitaResponseDTO mapToResponseDTO(Cita cita) {
-        return new CitaResponseDTO(
+    private CitaResponse mapToResponseDTO(Cita cita) {
+        return new CitaResponse(
             cita.getFolioCita(),
                 personaService.obtenerNombreCompletoPersona(cita.getPaciente().getPersona()),
                 personaService.obtenerNombreCompletoPersona(cita.getDoctor().getEmpleado().getPersona()),
@@ -76,11 +92,9 @@ public class CitaServiceImp implements CitaService {
                 );
     }
 
-    // --- VALIDACIONES DE NEGOCIO ---
-
     private void validarDisponibilidadDoctor(Doctor doctor, LocalDateTime date) {
         if (!doctorTrabajaEseDia(doctor, date)) {
-            throw new DoctorNoTrabajaEseDia("El doctor no trabaja en el día seleccionado.");
+            throw new DoctorNoTrabajaEseDiaException("El doctor no trabaja en el día seleccionado.");
         }
         if (!horaDisponibleDoctor(doctor, date)) {
             throw new HorarioNoDisponibleException("El horario seleccionado no está disponible.");
@@ -99,7 +113,6 @@ public class CitaServiceImp implements CitaService {
         ).isPresent();
     }
 
-    // --- LÓGICA DE HORARIOS ---
 
     private boolean doctorTrabajaEseDia(Doctor doctor, LocalDateTime fecha) {
         return doctor.getEmpleado().getHorarios().stream()
@@ -129,7 +142,7 @@ public class CitaServiceImp implements CitaService {
                 .stream()
                 .filter(h -> h.getDia().getDay().equals(diaSemana))
                 .findFirst()
-                .orElseThrow(() -> new DoctorNoTrabajaEseDia("Día fuera del horario del doctor"));
+                .orElseThrow(() -> new DoctorNoTrabajaEseDiaException("Día fuera del horario del doctor"));
 
         List<LocalTime> slots = new ArrayList<>();
         LocalTime actual = horario.getHrsInicio();
@@ -144,13 +157,8 @@ public class CitaServiceImp implements CitaService {
         return citaRepository.findByDoctorAndFechaSolicitud(doctor, fecha).isPresent();
     }
 
-    @Override
-    public Cita obtenerById(Integer id) {
-        return citaRepository.findById(id).orElseThrow(()-> new CitaNoEncontradaException("Cita no encontrada"));
-    }
-
-    @Override
-    public BigDecimal obtenerMontoDeCita(Cita cita) {
+    private BigDecimal obtenerMontoDeCita(Cita cita) {
         return cita.getDoctor().getEspecialidad().getCosto();
     }
+
 }

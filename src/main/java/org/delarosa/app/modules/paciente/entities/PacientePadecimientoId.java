@@ -1,4 +1,4 @@
-package org.delarosa.app.modules.paciente.dtos;
+package org.delarosa.app.modules.paciente.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

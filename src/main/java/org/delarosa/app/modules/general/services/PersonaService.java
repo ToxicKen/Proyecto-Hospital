@@ -7,7 +7,7 @@ import org.delarosa.app.modules.general.entities.Persona;
 public interface PersonaService {
     Persona crearPersona(RegistroPersonaRequest registroPersonaRequest);
 
-    PersonaResponse obetenerResponsePersona(Persona persona);
+    PersonaResponse obtenerResponsePersona(Persona persona);
 
     String obtenerNombreCompletoPersona(Persona persona);
 }

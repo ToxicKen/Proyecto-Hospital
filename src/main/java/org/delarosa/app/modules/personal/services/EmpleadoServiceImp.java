@@ -5,7 +5,7 @@ import org.delarosa.app.modules.personal.dtos.RegistroEmpleadoRequest;
 import org.delarosa.app.modules.personal.entities.Empleado;
 import org.delarosa.app.modules.personal.repositories.EmpleadoRepository;
 import org.delarosa.app.modules.security.entities.Usuario;
-import org.delarosa.app.usuario.UsuarioService;
+import org.delarosa.app.modules.security.services.UsuarioService;
 import org.springframework.stereotype.Service;
 
 @Service

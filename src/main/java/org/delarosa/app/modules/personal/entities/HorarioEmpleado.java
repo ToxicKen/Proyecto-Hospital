@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.delarosa.app.Dia;
+import org.delarosa.app.modules.general.enums.Dia;
 
 import java.time.LocalTime;
 

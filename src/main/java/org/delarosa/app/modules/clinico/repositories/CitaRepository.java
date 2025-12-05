@@ -1,5 +1,6 @@
-package org.delarosa.app.citas;
+package org.delarosa.app.modules.clinico.repositories;
 
+import org.delarosa.app.modules.clinico.entities.Cita;
 import org.delarosa.app.modules.personal.entities.Doctor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,8 +1,8 @@
-package org.delarosa.app.citas;
+package org.delarosa.app.modules.clinico.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.delarosa.app.paciente.Paciente;
+import org.delarosa.app.modules.clinico.enums.TipoDevolucion;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +27,5 @@ public class Devolucion {
     private TipoDevolucion tipoDevolucion;
 
     private Integer PorcentajeDevuelto;
-
-
 
 }

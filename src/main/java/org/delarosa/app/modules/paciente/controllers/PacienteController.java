@@ -1,6 +1,9 @@
-package org.delarosa.app.paciente;
+package org.delarosa.app.modules.paciente.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.delarosa.app.modules.paciente.dtos.PacienteResponse;
+import org.delarosa.app.modules.paciente.dtos.RegistroPacienteRequest;
+import org.delarosa.app.modules.paciente.services.PacienteService;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +15,7 @@ public class PacienteController {
     private final PacienteService pacienteService;
 
     @PostMapping("/auth/registrar")
-    public ResponseEntity<AuthResponse> registrar(@RequestBody PacienteDTO request) {
+    public ResponseEntity<AuthResponse> registrar(@RequestBody RegistroPacienteRequest request) {
         return ResponseEntity.ok(pacienteService.registrarPaciente(request));
     }
 
@@ -22,7 +25,7 @@ public class PacienteController {
     }
 
     @GetMapping("/paciente/me")
-    public PacienteDatosDTO obtenerDatosPaciente(@RequestHeader("Authorization") String authHeader) {
+    public PacienteResponse obtenerDatosPaciente(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         System.out.println(pacienteService.obtenerPacienteDesdeToken(token).getIdPaciente());
         return pacienteService.obtenerDatosPaciente(token);

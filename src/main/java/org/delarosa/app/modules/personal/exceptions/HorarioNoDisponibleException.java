@@ -1,4 +1,4 @@
-package org.delarosa.app;
+package org.delarosa.app.modules.personal.exceptions;
 
 public class HorarioNoDisponibleException extends RuntimeException {
     public HorarioNoDisponibleException(String message) {

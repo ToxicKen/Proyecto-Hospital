@@ -1,4 +1,4 @@
-package org.delarosa.app.modules.paciente;
+package org.delarosa.app.modules.paciente.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.delarosa.app.modules.general.entities.Persona;
-import org.delarosa.app.modules.paciente.entities.Alergia;
-import org.delarosa.app.modules.paciente.entities.HistorialMedico;
 
 import java.util.List;
 

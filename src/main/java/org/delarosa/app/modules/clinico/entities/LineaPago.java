@@ -1,4 +1,4 @@
-package org.delarosa.app.citas;
+package org.delarosa.app.modules.clinico.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;

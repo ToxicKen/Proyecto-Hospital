@@ -1,4 +1,5 @@
-package org.delarosa.app.paciente;
+package org.delarosa.app.modules.paciente.enums;
+
 public enum TipoSangre {
     A_POSITIVO,
     A_NEGATIVO,

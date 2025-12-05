@@ -1,9 +1,12 @@
-package org.delarosa.app.citas;
+package org.delarosa.app.modules.clinico.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.delarosa.app.modules.clinico.dtos.CrearCitaRequest;
+import org.delarosa.app.modules.clinico.dtos.CitaResponse;
+import org.delarosa.app.modules.clinico.services.CitaService;
+import org.delarosa.app.modules.paciente.entities.Paciente;
+import org.delarosa.app.modules.paciente.services.PacienteService;
 import org.springframework.security.core.Authentication;
-import org.delarosa.app.paciente.Paciente;
-import org.delarosa.app.paciente.PacienteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,13 +25,13 @@ public class CitaController {
 
     @PostMapping
     @PreAuthorize("hasRole('PACIENTE')")
-    public ResponseEntity<CitaResponseDTO> registrarCita(
-            @Validated @RequestBody CitaCreateDTO citaDTO,
+    public ResponseEntity<CitaResponse> registrarCita(
+            @Validated @RequestBody CrearCitaRequest citaDTO,
             Authentication authentication
     ) {
         String emailUsuario = authentication.getName();
         Paciente paciente = pacienteService.buscarPorCorreo(emailUsuario);
-        CitaResponseDTO nuevaCita = citaService.crearCita(citaDTO, paciente);
+        CitaResponse nuevaCita = citaService.crearCita(citaDTO, paciente);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCita);
     }
 }

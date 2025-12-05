@@ -1,11 +1,10 @@
-package org.delarosa.app.persona;
+package org.delarosa.app.modules.general.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.delarosa.app.modules.general.entities.Persona;
 
 @Entity
 @Data

@@ -3,7 +3,6 @@ package org.delarosa.app.modules.general.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.delarosa.app.modules.security.entities.Usuario;
-import org.delarosa.app.persona.PersonaTelefono;
 
 import java.util.ArrayList;
 import java.util.List;

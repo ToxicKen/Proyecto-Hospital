@@ -1,4 +1,4 @@
-package org.delarosa.app.paciente;
+package org.delarosa.app.modules.paciente.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Padecimiento {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idPadecimiento;

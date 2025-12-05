@@ -3,12 +3,12 @@ package org.delarosa.app.modules.general.services;
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.general.dtos.PersonaResponse;
 import org.delarosa.app.modules.general.dtos.RegistroPersonaRequest;
+import org.delarosa.app.modules.general.dtos.TelefonoDTO;
 import org.delarosa.app.modules.general.entities.Persona;
+import org.delarosa.app.modules.general.entities.PersonaTelefono;
+import org.delarosa.app.modules.general.entities.Telefono;
 import org.delarosa.app.modules.general.exceptions.PersonaYaExistenteException;
 import org.delarosa.app.modules.general.repositories.PersonaRepository;
-import org.delarosa.app.persona.PersonaTelefono;
-import org.delarosa.app.persona.Telefono;
-import org.delarosa.app.persona.TelefonoDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +34,7 @@ public class PersonaServiceImp implements PersonaService {
     // --- Crear PersonaResponse a partir de una entidad Persona ---
 
     @Override
-    public PersonaResponse obetenerResponsePersona(Persona persona) {
+    public PersonaResponse obtenerResponsePersona(Persona persona) {
         List<TelefonoDTO> telefonos = mapearTelefonos(persona);
         return new PersonaResponse(persona.getIdPersona(),
                 obtenerNombreCompletoPersona(persona),
@@ -51,17 +51,11 @@ public class PersonaServiceImp implements PersonaService {
 
     // --- Métodos de apoyo ---
 
-
-
     private String obtenerDireccionCompleta(Persona persona) {
         return persona.getCalle() + " " +
                 persona.getColonia() + " " +
                 persona.getNumero();
     }
-
-
-
-
 
     private Persona crearEntidadPersona(RegistroPersonaRequest registroPersonaRequest) {
         return   Persona.builder()
@@ -107,6 +101,5 @@ public class PersonaServiceImp implements PersonaService {
                 .map(tel -> new TelefonoDTO(tel.getTelefono().getNumeroTelefono(), tel.getTipo()))
                 .toList();
     }
-
 
 }

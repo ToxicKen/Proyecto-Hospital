@@ -1,9 +1,10 @@
-package org.delarosa.app.citas;
+package org.delarosa.app.modules.clinico.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.delarosa.app.modules.clinico.enums.EstatusCita;
+import org.delarosa.app.modules.paciente.entities.Paciente;
 import org.delarosa.app.modules.personal.entities.Doctor;
-import org.delarosa.app.paciente.Paciente;
 
 import java.time.LocalDateTime;
 
@@ -36,11 +37,9 @@ public class Cita {
     @OneToOne(mappedBy = "cita",cascade = CascadeType.PERSIST,orphanRemoval = true)
     private OrdenPago ordenPago;
 
-
     public void asignarOrdenPago(OrdenPago orden) {
         this.ordenPago = orden;
-        orden.setCita(this); // <--- ESTO ES CRUCIAL
+        orden.setCita(this);
     }
-
 
 }

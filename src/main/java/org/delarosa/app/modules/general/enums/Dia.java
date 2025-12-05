@@ -1,4 +1,5 @@
-package org.delarosa.app;
+package org.delarosa.app.modules.general.enums;
+
 
 import java.time.DayOfWeek;
 

@@ -1,7 +1,7 @@
-package org.delarosa.app.paciente;
+package org.delarosa.app.modules.paciente.exceptions;
 
-public class AlergiaNoExistente extends RuntimeException {
-    public AlergiaNoExistente(String message) {
+public class AlergiaNoEncontradaException extends RuntimeException {
+    public AlergiaNoEncontradaException(String message) {
         super(message);
     }
 }

@@ -1,4 +1,4 @@
-package org.delarosa.app.citas;
+package org.delarosa.app.modules.clinico.enums;
 
 public enum EstatusCita {
     AGENDADA_PENDIENTE_DE_PAGO,

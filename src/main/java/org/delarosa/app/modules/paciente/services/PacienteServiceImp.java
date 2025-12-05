@@ -1,17 +1,17 @@
-package org.delarosa.app.modules.paciente;
+package org.delarosa.app.modules.paciente.services;
 
 import lombok.RequiredArgsConstructor;
 
 import org.delarosa.app.modules.general.services.PersonaService;
 import org.delarosa.app.modules.paciente.dtos.*;
 import org.delarosa.app.modules.paciente.entities.*;
+import org.delarosa.app.modules.paciente.enums.TipoSangre;
 import org.delarosa.app.modules.paciente.exceptions.AlergiaNoEncontradaException;
 import org.delarosa.app.modules.paciente.exceptions.PacienteNoEncontradoException;
-import org.delarosa.app.modules.paciente.exceptions.PadecimientoNoEncontrado;
+import org.delarosa.app.modules.paciente.exceptions.PadecimientoNoEncontradoException;
 import org.delarosa.app.modules.paciente.repositories.AlergiaRepository;
 import org.delarosa.app.modules.paciente.repositories.PacienteRepository;
 import org.delarosa.app.modules.paciente.repositories.PadecimentoRepository;
-import org.delarosa.app.modules.paciente.services.PacienteService;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.delarosa.app.modules.security.jwt.JwtService;
 import org.delarosa.app.modules.security.entities.Usuario;
@@ -62,6 +62,36 @@ public class PacienteServiceImp implements PacienteService {
         return pacienteRepo.save(nvoPaciente);
     }
 
+    // --- Obtener Datos de Paciente desde Token ---
+
+    @Override
+    public PacienteResponse obtenerDatosPaciente(String token) {
+        return mapearPaciente(obtenerPacienteDesdeToken(token));
+    }
+
+    // --- Obtener Entidad Paciente desde Token---
+
+    @Override
+    public Paciente obtenerPacienteDesdeToken(String token) {
+        return pacienteRepo.findById(jwtService.getUserIdFromToken(token)).orElseThrow(() -> new PacienteNoEncontradoException("Paciente no existente"));
+    }
+
+    // --- Obtener Entidad Paciente desde Id---
+
+    @Override
+    public Paciente obtenerPacienteById(Integer id) {
+        return pacienteRepo.findById(id).orElseThrow(() -> new PacienteNoEncontradoException("Paciente no encontrado"));
+    }
+
+    // --- Obtener Entidad Paciente desde Correo Electronico---
+
+    @Override
+    public Paciente buscarPorCorreo(String email) {
+        return pacienteRepo.buscarPorEmailDeUsuario(email)
+                .orElseThrow(() -> new RuntimeException("No se encontró un Paciente vinculado al usuario: " + email));
+    }
+
+    // --- Metodos de apoyo---
 
     private void asignarRolPaciente(Usuario usuario) {
         usuarioService.addRolPaciente(usuario);
@@ -130,7 +160,7 @@ public class PacienteServiceImp implements PacienteService {
     }
 
     private Padecimiento obtenerPadecimientoPorId(Integer id) {
-        return padecimientoRepo.findById(id).orElseThrow(() -> new PadecimientoNoEncontrado("Padecimiento con id: " + id + " no existente"));
+        return padecimientoRepo.findById(id).orElseThrow(() -> new PadecimientoNoEncontradoException("Padecimiento con id: " + id + " no existente"));
     }
 
     private Padecimiento crearNuevoPadecimiento(String nombre) {
@@ -161,24 +191,13 @@ public class PacienteServiceImp implements PacienteService {
     }
 
 
-
     public PacienteResponse mapearPaciente(Paciente paciente) {
-        return new PacienteResponse(personaService.obetenerResponsePersona(paciente.getPersona())
+        return new PacienteResponse(personaService.obtenerResponsePersona(paciente.getPersona())
                 , paciente.getPersona().getUsuario().getCorreoElectronico(),
                 mapearAlergia(paciente),
                 mapearPadecimientosDTO(paciente),
                 mapearHistorialMedicoDTO(paciente)
         );
-    }
-
-    @Override
-    public PacienteResponse obtenerDatosPaciente(String token) {
-        return mapearPaciente(obtenerPacienteDesdeToken(token));
-    }
-
-    @Override
-    public Paciente obtenerPacienteDesdeToken(String token) {
-        return pacienteRepo.findById(jwtService.getUserIdFromToken(token)).orElseThrow(() -> new PacienteNoEncontradoException("Paciente no existente"));
     }
 
     private List<String> mapearAlergia(Paciente paciente) {
@@ -193,14 +212,4 @@ public class PacienteServiceImp implements PacienteService {
         return paciente.getPadecimientos().stream().map(p -> new PadecimientoDatosDTO(p.getPadecimiento().getNombre(), p.getDescripcion())).toList();
     }
 
-    @Override
-    public Paciente obtenerPacienteById(Integer id) {
-        return pacienteRepo.findById(id).orElseThrow(() -> new PacienteNoEncontradoException("Paciente no encontrado"));
-    }
-
-    @Override
-    public Paciente buscarPorCorreo(String email) {
-        return pacienteRepo.buscarPorEmailDeUsuario(email)
-                .orElseThrow(() -> new RuntimeException("No se encontró un Paciente vinculado al usuario: " + email));
-    }
 }
