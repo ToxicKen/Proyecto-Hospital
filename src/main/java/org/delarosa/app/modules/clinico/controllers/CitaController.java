@@ -44,11 +44,7 @@ public class CitaController {
         return ResponseEntity.ok(doctorService.obtenerDoctoresByEspecialidadId(idEspecialidad));
     }
 
-
-
-
-
-
+    //Mostrar Los días hábiles de ese doctor
 
     @PostMapping("/registrar")
     public ResponseEntity<CitaResponse> registrarCita(
