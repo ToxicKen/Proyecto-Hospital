@@ -1,6 +1,7 @@
 package org.delarosa.app.modules.clinico.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.delarosa.app.modules.clinico.dtos.CrearCitaRequest;
 import org.delarosa.app.modules.clinico.dtos.CitaResponse;
 import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
@@ -16,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -25,6 +28,7 @@ public class CitaController {
     private final CitaService citaService;
     private final PacienteService pacienteService;
     private final DoctorService doctorService;
+
 
 
     //Proceso para Registrar Citas
@@ -44,12 +48,27 @@ public class CitaController {
         return ResponseEntity.ok(doctorService.obtenerDoctoresByEspecialidadId(idEspecialidad));
     }
 
+    // Mostrar todos los días disponibles para una cita con ese doctor
+    @GetMapping("/doctores/{idDoctor}/fechas-disponibles")
+    @PreAuthorize("hasRole('PACIENTE')")
+    public ResponseEntity<List<LocalDate>> mostrarFechasDisponibles(@PathVariable Integer idDoctor) {
+        return  ResponseEntity.ok(doctorService.obtenerFechasDisponiblesByDoctorId(idDoctor));
+    }
 
+    //Mostrar todos los horarios disponibles de un doctor
 
+    @GetMapping("/doctores/{idDoctor}/horarios/disponibles")
+    @PreAuthorize("hasRole('PACIENTE')")
+    public ResponseEntity<List<LocalTime>> obtenerHorasDisponibles(
+            @PathVariable Integer idDoctor,
+            @RequestParam String fecha) {
+        LocalDate dia = LocalDate.parse(fecha);
+        List<LocalTime> horasDisponibles = citaService.obtenerHorasDisponiblesByDoctorIdYFecha(idDoctor, dia);
+        return ResponseEntity.ok(horasDisponibles);
+    }
 
-
-
-
+    //Registrar una cita
+    
     @PostMapping("/registrar")
     public ResponseEntity<CitaResponse> registrarCita(
             @Validated @RequestBody CrearCitaRequest citaDTO,

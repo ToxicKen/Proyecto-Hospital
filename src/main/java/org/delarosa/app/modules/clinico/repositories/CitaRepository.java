@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -25,4 +26,8 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
             Integer paciente,
             Integer doctor
     );
+
+    List<Cita> findAllByDoctorIdAndFechaCitaHoraBetween(Integer idDoctor,
+                                                        LocalDateTime inicio,
+                                                        LocalDateTime fin);
 }

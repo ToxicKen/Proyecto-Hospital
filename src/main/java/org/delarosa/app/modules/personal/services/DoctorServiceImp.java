@@ -2,9 +2,12 @@ package org.delarosa.app.modules.personal.services;
 
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
+import org.delarosa.app.modules.clinico.entities.Cita;
+import org.delarosa.app.modules.general.enums.Dia;
 import org.delarosa.app.modules.general.services.PersonaService;
 import org.delarosa.app.modules.personal.dtos.DoctorDatosResponse;
 import org.delarosa.app.modules.personal.entities.Especialidad;
+import org.delarosa.app.modules.personal.entities.HorarioEmpleado;
 import org.delarosa.app.modules.personal.exceptions.EspecialidadNoEncontradaException;
 import org.delarosa.app.modules.personal.repositories.EspecialidadRepository;
 import org.delarosa.app.modules.personal.dtos.RegistroDoctorRequest;
@@ -14,6 +17,7 @@ import org.delarosa.app.modules.personal.exceptions.ConsultorioNoEncontradoExcep
 import org.delarosa.app.modules.personal.exceptions.DoctorNoEncontradoException;
 import org.delarosa.app.modules.personal.repositories.ConsultorioRepository;
 import org.delarosa.app.modules.personal.repositories.DoctorRepository;
+import org.delarosa.app.modules.personal.repositories.HorarioEmpleadoRepository;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.delarosa.app.modules.security.jwt.JwtService;
 import org.delarosa.app.modules.security.entities.Usuario;
@@ -21,6 +25,11 @@ import org.delarosa.app.modules.security.services.UsuarioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,6 +43,8 @@ public class DoctorServiceImp implements DoctorService {
     private final EspecialidadRepository especialidadRepo;
     private final ConsultorioRepository consultorioRepo;
     private final PersonaService personaService;
+    private final HorarioEmpleadoRepository horarioEmpleadoRepo;
+
 
     // --- Registro de Doctor ---
 
@@ -82,7 +93,34 @@ public class DoctorServiceImp implements DoctorService {
         return doctorRepo.findAllByEspecialidadIdEspecialidad(idEspecialidad).stream().map(this::mapearDoctor).toList();
     }
 
+    // --- Obtener todos los días disponibles de un doctor
+    // (incluyendo la restricción de mínimo 48 horas previas y maximo 3 messes después---
 
+    @Override
+    public List<LocalDate> obtenerFechasDisponiblesByDoctorId(Integer idDoctor) {
+        List<DayOfWeek> diasLaborales = empleadoService.obtenerDiasLaboralesByIdEmpleado(idDoctor).stream().map(Dia::getDay).toList();
+        LocalDate fechaInicial = LocalDateTime.now().plusHours(48).toLocalDate();
+        LocalDate fechaMaxima = LocalDateTime.now().plusMonths(3).toLocalDate();
+        LocalDate fechaActual = fechaInicial;
+
+        List<LocalDate> diasDisponibles = new ArrayList<>();
+        while (!fechaActual.isAfter(fechaMaxima)) {
+            if (diasLaborales.contains(fechaActual.getDayOfWeek())) {
+                diasDisponibles.add(fechaActual);
+            }
+            fechaActual = fechaActual.plusDays(1);
+        }
+
+        return diasDisponibles;
+    }
+
+    //Obtener Horas Laborales del doctor
+    @Override
+    public List<LocalTime> obtenerHorasByDoctorYFecha(Integer idDoctor,LocalDate dia) {
+        HorarioEmpleado horarioDia = horarioEmpleadoRepo.findByIdEmpleadoAndDia(idDoctor,Dia.fromDayOfWeek(dia.getDayOfWeek())).orElseThrow(()->new RuntimeException("Horario no Encontrado"));
+        return generarHorasDisponibles(horarioDia.getHrsInicio(),horarioDia.getHrsFin());
+    }
+    
     // --- Metodos de apoyo ---
 
     private void asignarRolDoctor(Usuario usuarioCreado) {
@@ -103,6 +141,15 @@ public class DoctorServiceImp implements DoctorService {
         return new  DoctorDatosResponse(doctor.getIdDoctor(),
                 personaService.obtenerNombreCompletoPersona(doctor.getEmpleado().getPersona()),
                 doctor.getEspecialidad().getNombre(),doctor.getConsultorio().getIdConsultorio());
+    }
+
+    private List<LocalTime> generarHorasDisponibles(LocalTime inicio, LocalTime fim) {
+        List<LocalTime> horasDisponibles = new ArrayList<>();
+        while (!inicio.isBefore(fim)) {
+            horasDisponibles.add(inicio);
+            inicio.plusHours(1);
+        }
+        return horasDisponibles;
     }
 
 

@@ -6,6 +6,8 @@ import org.delarosa.app.modules.personal.dtos.RegistroDoctorRequest;
 import org.delarosa.app.modules.personal.entities.Doctor;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface DoctorService {
@@ -18,5 +20,10 @@ public interface DoctorService {
     List<EspecialidadDTO> obtenerEspecialidades();
 
     List<DoctorDatosResponse> obtenerDoctoresByEspecialidadId(Integer idEspecialidad);
-    
+
+    List<LocalDate> obtenerFechasDisponiblesByDoctorId(Integer idDoctor);
+
+    List<LocalTime> obtenerHorasByDoctorYFecha(Integer idDoctor,LocalDate dia);
+
+
 }

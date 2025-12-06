@@ -29,8 +29,20 @@ public enum Dia {
             case DOMINGO -> DayOfWeek.SUNDAY;
         };
     }
+    public static Dia fromDayOfWeek(DayOfWeek day) {
+        return switch (day) {
+            case MONDAY -> LUNES;
+            case TUESDAY -> MARTES;
+            case WEDNESDAY -> MIERCOLES;
+            case THURSDAY -> JUEVES;
+            case FRIDAY -> VIERNES;
+            case SATURDAY -> SABADO;
+            case SUNDAY -> DOMINGO;
+        };
+    }
 
     public DayOfWeek getDay() {
         return day;
     }
+
 }

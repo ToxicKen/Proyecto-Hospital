@@ -69,10 +69,22 @@ public class CitaServiceImp implements CitaService {
         return citaRepository.findById(id).orElseThrow(()-> new CitaNoEncontradaException("Cita no encontrada"));
     }
 
-    //Obtener todas las Especialidades
+    // --- Obtener horas disponibles para un doctor ---
+
     @Override
-    public List<EspecialidadDTO> obtenerEspecialidades() {
-        return List.of();
+    public List<LocalTime> obtenerHorasDisponiblesByDoctorIdYFecha(Integer idDoctor, LocalDate dia) {
+        LocalDateTime inicio = dia.atStartOfDay();
+        LocalDateTime fin = dia.atTime(23, 59);
+        List<Cita> citas = citaRepository.findAllByDoctorIdAndFechaCitaHoraBetween(idDoctor, inicio, fin);
+        List<LocalTime> rangoHorasDoctor = doctorService.obtenerHorasByDoctorYFecha(idDoctor, dia);
+
+        List<LocalTime> horasOcupadas = citas.stream()
+                .map(c -> c.getFechaCita().toLocalTime())
+                .toList();
+        
+        return rangoHorasDoctor.stream()
+                .filter(h -> !horasOcupadas.contains(h))
+                .toList();
     }
 
 

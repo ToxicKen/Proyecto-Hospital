@@ -151,23 +151,60 @@ Devuelve un JSON:
 
 2.- Mostrar Doctores de esa especialidad
 
+ENDPOINT api/cita/especialidades/{idEspecialidad}/doctores
+Recibe el id De la especialidad como Path Variable ej:  /api/especialidades/5/doctores
+Recibe el header con Authorization: Bearer <token>
+
+Devuelve el siguiente JSON:
+
+[
+  {
+    "idDoctor": 12,
+    "nombreCompleto": "Dr. Luis Gómez Ramírez",
+    "especialidad": "Cardiología",
+    "consultorio": 3
+  },
+  {
+    "idDoctor": 18,
+    "nombreCompleto": "Dra. Ana Torres Medina",
+    "especialidad": "Cardiología",
+    "consultorio": 7
+  }
+]
 
 
+3.- Mostrar todas las fechas de ese doctor (incluye la excepcion de 48 horas y minimo 3 meses)
 
+ENDPOINT:  api/cita/doctores/{idDoctor}/fechas-disponibles
 
+Recibe el id del doctor como Path Variable ej:  api/cita/doctores/5/fechas-disponibles
+Recibe el header con Authorization: Bearer <token>
 
+Devuelve el siguiente JSON
 
+[
+  "2025-01-21",
+  "2025-01-23",
+  "2025-01-25",
+  "2025-01-28",
+  "2025-01-30"
+]
 
+4.- Mostrar todas las horas disponibles con ese Doctor ese dia (excluye las horas ya ocupadas por otras citas)
 
+ENDPOINT:  api/cita/doctores/{idDoctor}/horarios/disponibles
 
+Recibe el id del doctor como Path Variable y ademas la fecha como Query param ej:  /api/doctores/5/horarios/disponibles?fecha=2025-02-10
+Recibe el header con Authorization: Bearer <token>
+Devuelve el siguiente JSON:
 
-
-
-
-
-
-
-
+[
+  "08:00",
+  "08:30",
+  "09:00",
+  "09:30",
+  "10:00"
+]
 
 
 ENDPOINT: /api/cita/registrar
@@ -191,6 +228,10 @@ Devuelve el siguiente JSON:
   "fechaCita": "2025-12-15T09:30:00",
   "estatus": "AGENDADA_PENDIENTE_DE_PAGO"
 }
+
+
+
+
 
 
 DOCTOR
