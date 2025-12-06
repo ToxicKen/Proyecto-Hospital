@@ -1,6 +1,10 @@
 package org.delarosa.app.modules.personal.services;
 
 import lombok.RequiredArgsConstructor;
+import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
+import org.delarosa.app.modules.general.services.PersonaService;
+import org.delarosa.app.modules.personal.dtos.DoctorDatosResponse;
+import org.delarosa.app.modules.personal.entities.Especialidad;
 import org.delarosa.app.modules.personal.exceptions.EspecialidadNoEncontradaException;
 import org.delarosa.app.modules.personal.repositories.EspecialidadRepository;
 import org.delarosa.app.modules.personal.dtos.RegistroDoctorRequest;
@@ -17,6 +21,8 @@ import org.delarosa.app.modules.security.services.UsuarioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DoctorServiceImp implements DoctorService {
@@ -27,6 +33,7 @@ public class DoctorServiceImp implements DoctorService {
     private final DoctorRepository doctorRepo;
     private final EspecialidadRepository especialidadRepo;
     private final ConsultorioRepository consultorioRepo;
+    private final PersonaService personaService;
 
     // --- Registro de Doctor ---
 
@@ -61,6 +68,21 @@ public class DoctorServiceImp implements DoctorService {
         return doctorRepo.findById(id).orElseThrow(() -> new DoctorNoEncontradoException("Doctor no encontrado"));
     }
 
+    // --- Obtener todas las especialidades ---
+
+    @Override
+    public List<EspecialidadDTO> obtenerEspecialidades() {
+        return especialidadRepo.findAll().stream().map(this::mapearEspecialidad).toList();
+    }
+
+    // --- Obtener todos los doctores de una especialidad ---
+
+    @Override
+    public List<DoctorDatosResponse> obtenerDoctoresByEspecialidadId(Integer idEspecialidad) {
+        return doctorRepo.findAllByEspecialidadIdEspecialidad(idEspecialidad).stream().map(this::mapearDoctor).toList();
+    }
+
+
     // --- Metodos de apoyo ---
 
     private void asignarRolDoctor(Usuario usuarioCreado) {
@@ -72,6 +94,17 @@ public class DoctorServiceImp implements DoctorService {
         String token = jwtService.getToken(usuario);
         return AuthResponse.builder().token(token).build();
     }
+
+    private EspecialidadDTO mapearEspecialidad(Especialidad especialidad){
+        return new EspecialidadDTO(especialidad.getIdEspecialidad(),especialidad.getNombre());
+    }
+
+    private DoctorDatosResponse mapearDoctor(Doctor doctor) {
+        return new  DoctorDatosResponse(doctor.getIdDoctor(),
+                personaService.obtenerNombreCompletoPersona(doctor.getEmpleado().getPersona()),
+                doctor.getEspecialidad().getNombre(),doctor.getConsultorio().getIdConsultorio());
+    }
+
 
 }
 

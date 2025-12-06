@@ -3,34 +3,60 @@ package org.delarosa.app.modules.clinico.controllers;
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.clinico.dtos.CrearCitaRequest;
 import org.delarosa.app.modules.clinico.dtos.CitaResponse;
+import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
 import org.delarosa.app.modules.clinico.services.CitaService;
 import org.delarosa.app.modules.paciente.entities.Paciente;
 import org.delarosa.app.modules.paciente.services.PacienteService;
+import org.delarosa.app.modules.personal.dtos.DoctorDatosResponse;
+import org.delarosa.app.modules.personal.services.DoctorService;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/citas")
+@RequestMapping("/api/cita")
 @RequiredArgsConstructor
 public class CitaController {
     private final CitaService citaService;
     private final PacienteService pacienteService;
+    private final DoctorService doctorService;
 
-    @PostMapping
+
+    //Proceso para Registrar Citas
+
+    //Mostrar todas las especialidades
+    @GetMapping("/especialidades")
     @PreAuthorize("hasRole('PACIENTE')")
+    public ResponseEntity<List<EspecialidadDTO>> mostrarEspecialidades() {
+        return ResponseEntity.ok(doctorService.obtenerEspecialidades());
+    }
+
+    //Mostrar Doctores para esa especialidad
+
+    @GetMapping("/especialidades/{idEspecialidad}/doctores")
+    @PreAuthorize("hasRole('PACIENTE')")
+    public ResponseEntity<List<DoctorDatosResponse>> mostrarDoctores(@PathVariable Integer idEspecialidad) {
+        return ResponseEntity.ok(doctorService.obtenerDoctoresByEspecialidadId(idEspecialidad));
+    }
+
+
+
+
+
+
+
+    @PostMapping("/registrar")
     public ResponseEntity<CitaResponse> registrarCita(
             @Validated @RequestBody CrearCitaRequest citaDTO,
             Authentication authentication
     ) {
         String emailUsuario = authentication.getName();
-        Paciente paciente = pacienteService.buscarPorCorreo(emailUsuario);
+        Paciente paciente = pacienteService.obtenerPacienteByCorreo(emailUsuario);
         CitaResponse nuevaCita = citaService.crearCita(citaDTO, paciente);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCita);
     }

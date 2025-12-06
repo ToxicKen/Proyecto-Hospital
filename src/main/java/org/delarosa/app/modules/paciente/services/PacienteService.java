@@ -12,9 +12,9 @@ public interface PacienteService {
 
     Paciente obtenerPacienteDesdeToken(String token);
 
-    PacienteResponse obtenerDatosPaciente(String token);
+    PacienteResponse obtenerDatosPaciente(String Correo);
 
     Paciente obtenerPacienteById(Integer id);
 
-    Paciente buscarPorCorreo(String email);
+    Paciente obtenerPacienteByCorreo(String email);
 }

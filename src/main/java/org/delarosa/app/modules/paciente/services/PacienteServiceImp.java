@@ -65,8 +65,8 @@ public class PacienteServiceImp implements PacienteService {
     // --- Obtener Datos de Paciente desde Token ---
 
     @Override
-    public PacienteResponse obtenerDatosPaciente(String token) {
-        return mapearPaciente(obtenerPacienteDesdeToken(token));
+    public PacienteResponse obtenerDatosPacienteByCorreo(String correo) {
+        return mapearPaciente(obtenerPacienteByCorreo(correo));
     }
 
     // --- Obtener Entidad Paciente desde Token---
@@ -86,7 +86,7 @@ public class PacienteServiceImp implements PacienteService {
     // --- Obtener Entidad Paciente desde Correo Electronico---
 
     @Override
-    public Paciente buscarPorCorreo(String email) {
+    public Paciente obtenerPacienteByCorreo(String email) {
         return pacienteRepo.buscarPorEmailDeUsuario(email)
                 .orElseThrow(() -> new RuntimeException("No se encontró un Paciente vinculado al usuario: " + email));
     }

@@ -124,6 +124,75 @@ Devuelve el siguiente JSON:
 }
 
 
+Registrar cita
+
+1.- Mostrar todas las especialidades
+
+ENDPOINT api/cita/especialidades
+Recibe el header con Authorization: Bearer <token>
+
+Devuelve un JSON:
+
+[
+  {
+    "idEspecialidad": 1,
+    "nombre": "Cardiología"
+  },
+  {
+    "idEspecialidad": 2,
+    "nombre": "Pediatría"
+  },
+  {
+    "idEspecialidad": 3,
+    "nombre": "Dermatología"
+  }
+]
+
+
+2.- Mostrar Doctores de esa especialidad
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ENDPOINT: /api/cita/registrar
+
+Ademas de recibir el header con el token
+Recibe el siguiente JSON:
+
+{
+  "idDoctor": 5,
+  "fechaCita": "2025-03-12T14:30:00"
+}
+
+Devuelve el siguiente JSON:
+
+{
+  "folioCita": 101,
+  "nombrePaciente": "Juan Martínez López",
+  "nombreDoctor": "Dr. Luis Gómez Ramírez",
+  "especialdiad": "Cardiología",
+  "Consultorio": 3,
+  "fechaCita": "2025-12-15T09:30:00",
+  "estatus": "AGENDADA_PENDIENTE_DE_PAGO"
+}
+
+
 DOCTOR
 
 Registrar Doctor (solo lo puede hacer una recepcionista por lo que en si lo ve la recepcionista no el doctor)

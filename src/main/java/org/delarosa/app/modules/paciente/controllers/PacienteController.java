@@ -6,6 +6,7 @@ import org.delarosa.app.modules.paciente.dtos.RegistroPacienteRequest;
 import org.delarosa.app.modules.paciente.services.PacienteService;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,10 +27,10 @@ public class PacienteController {
     }
 
     @GetMapping("/paciente/me")
-    public PacienteResponse obtenerDatosPaciente(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        System.out.println(pacienteService.obtenerPacienteDesdeToken(token).getIdPaciente());
-        return pacienteService.obtenerDatosPaciente(token);
+    public ResponseEntity<PacienteResponse> obtenerDatosPaciente(Authentication authentication) {
+        String email = authentication.getName();
+        PacienteResponse paciente = pacienteService.obtenerDatosPacienteByCorreo(email);
+        return ResponseEntity.ok(paciente);
     }
 
 }

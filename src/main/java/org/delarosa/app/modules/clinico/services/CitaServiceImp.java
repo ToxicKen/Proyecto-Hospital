@@ -1,6 +1,7 @@
 package org.delarosa.app.modules.clinico.services;
 
 import lombok.RequiredArgsConstructor;
+import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
 import org.delarosa.app.modules.clinico.enums.EstatusCita;
 import org.delarosa.app.modules.clinico.exceptions.CitaNoEncontradaException;
 import org.delarosa.app.modules.clinico.exceptions.FechaFueraRangoException;
@@ -67,6 +68,13 @@ public class CitaServiceImp implements CitaService {
     public Cita obtenerById(Integer id) {
         return citaRepository.findById(id).orElseThrow(()-> new CitaNoEncontradaException("Cita no encontrada"));
     }
+
+    //Obtener todas las Especialidades
+    @Override
+    public List<EspecialidadDTO> obtenerEspecialidades() {
+        return List.of();
+    }
+
 
     // --- Metodos de apoyo ---
 
