@@ -7,15 +7,17 @@ import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/recepcionista")
 public class RecepcionistaController {
 
     private final RecepcionistaService recepcionistaService;
 
-    @PostMapping("/auth/recepcionista/registro")
+    @PostMapping("/registro")
     public ResponseEntity<AuthResponse> registrarRecepcionista(@RequestBody RegistroEmpleadoRequest registroEmpleadoRequest) {
         return ResponseEntity.ok(recepcionistaService.registrarRecepcionista(registroEmpleadoRequest));
     }

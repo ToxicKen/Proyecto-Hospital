@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping(("/api/paciente"))
 public class PacienteController {
 
     private final PacienteService pacienteService;
 
-    @PostMapping("/auth/registrar")
-    public ResponseEntity<AuthResponse> registrar(@RequestBody RegistroPacienteRequest request) {
+    @PostMapping("/registrar")
+    public ResponseEntity<AuthResponse> registrarPaciente(@RequestBody RegistroPacienteRequest request) {
         return ResponseEntity.ok(pacienteService.registrarPaciente(request));
     }
 

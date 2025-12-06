@@ -1,0 +1,207 @@
+
+LOGIN
+
+ENDPOINT: /api/auth/login
+
+--Los datos del JSON son ejemplos solo deben coincidir el nombre de los atributos
+
+Recibe el siguiente JSON:
+{
+  "correoElectronico": "usuario@example.com",
+  "contrasenia": "TuPassword123"
+}
+
+Devuelve el siguiente JSON:
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+
+Este es el token del usuario el cual se debe guardar en el fronted
+
+Paciente
+
+Registro de Paciente
+
+ENDPOINT: /api/paciente/registrar
+
+Recibe el siguiente JSON:
+
+{
+  "registroPersonaRequest": {
+    "nombre": "Juan",
+    "apellidoM": "López",
+    "apellidoP": "Martínez",
+    "curp": "LOMJ990101HDFRXX09",
+    "calle": "Av. Central",
+    "colonia": "Centro",
+    "numero": "123",
+    "telefonos": [
+      {
+        "numero": "5512345678",
+        "tipo": "MOVIL"
+      },
+      {
+        "numero": "5576543210",
+        "tipo": "CASA"
+      }
+    ]
+  },
+  "registroUsuarioRequest": {
+    "correoElectronico": "juan@example.com",
+    "contrasenia": "123456"
+  },
+  "idAlergias": [1, 3],                     -- En este caso son los ids de las alergias que ya tenemos en el sistema
+  "nuevasAlergias": ["Polen", "Gluten"],    --Estas son alergias nuevas
+  "padecimientos": [
+    {
+      "id": 10,                             --Este es el id de un Padecimiento que ya existe en el sistema
+      "nombre": null,                         --En caso de que el padecimiento ya exista no es necesario pasarle el nombre
+      "descripcion": "Dificultad respiratoria ocasional"
+    },
+    {
+      "id": null,                             --Si el caso es es el contrario osea que el Padecimiento no existe se debe pasar el id como null
+      "nombre": "Gastritis",                --Y en ese caso se pasa el nombre del padecimiento previo
+      "descripcion": "Molestias estomacales frecuentes" --En cualquiera de los 2 casos se pasa la descripcion puesto que este depende del paciente
+    }
+  ],
+  "historialMedico": {
+    "peso": 70.5,
+    "estatura": 1.75,
+    "tipoSangre": "O_NEGATIVO" --Se debe pasar el tipo de sangre en este formato
+  }
+}
+
+Devuelve el siguiente JSON:
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+
+Obtener los datos de un paciente
+
+ENDPOINT: /api/paciente/me
+
+Recibe el siguiente HEADER:
+
+Authorization: Bearer <token> --Este es el token que se da cuando inicia sesion o se registra un paciente
+
+Devuelve el siguiente JSON:
+
+{
+  "persona": {
+    "nombreCompleto": "Juan Martínez López",
+    "curp": "LOMJ990101HDFRXX09",
+    "direccion": "Av. Central #123, Centro",
+    "telefonos": [
+      {
+        "numero": "5512345678",
+        "tipo": "MOVIL"
+      }
+    ]
+  },
+  "email": "juan@example.com",
+  "alergias": [
+    "Polen",
+    "Gluten",
+    "Alergia registrada 1"
+  ],
+  "padecimientos": [
+    {
+      "id": 10,
+      "nombre": "Asma",
+      "descripcion": "Dificultad respiratoria ocasional"
+    },
+    {
+      "id": 20,
+      "nombre": "Gastritis",
+      "descripcion": "Molestias estomacales frecuentes"
+    }
+  ],
+  "historialMedico": {
+    "peso": 70.5,
+    "estatura": 1.75,
+    "tipoSangre": "O_NEGATIVO"
+  }
+}
+
+
+DOCTOR
+
+Registrar Doctor (solo lo puede hacer una recepcionista por lo que en si lo ve la recepcionista no el doctor)
+
+ENDPOINT: /api/doctor/registro
+
+Recibe el siguiente JSON:
+
+{
+  "registroEmpleadoRequest": {
+    "registroPersonaRequest": {
+      "nombre": "Luis",
+      "apellidoM": "Gómez",
+      "apellidoP": "Ramírez",
+      "curp": "GMRL850505HDFRXX07",
+      "calle": "Calle 5",
+      "colonia": "Las Palmas",
+      "numero": "42",
+      "telefonos": [
+        {
+          "numero": "5587654321",
+          "tipo": "MOVIL"
+        },
+        {
+          "numero": "5556781234",
+          "tipo": "CASA"
+        }
+      ]
+    },
+    "registroUsuarioRequest": {
+      "correoElectronico": "luis.ramirez@example.com",
+      "contrasenia": "Doctor1234"
+    },
+    "salario": 25000.50
+  },
+  "cedulaProfesional": "12345678",
+  "idConsultorio": 3,
+  "idEspecialidad": 5
+}
+
+Devuelve el siguiente JSON:
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+
+Recepcionista
+
+Registro Recepcionista
+
+ENDPOINT: /api/recepcionista
+
+Recibe el siguiente JSON:
+
+{
+  "registroPersonaRequest": {
+    "nombre": "Luis",
+    "apellidoM": "Gómez",
+    "apellidoP": "Ramírez",
+    "curp": "GMRL850505HDFRXX07",
+    "calle": "Calle 5",
+    "colonia": "Las Palmas",
+    "numero": "42",
+    "telefonos": [
+      {
+        "numero": "5587654321",
+        "tipo": "MOVIL"
+      }
+    ]
+  },
+  "registroUsuarioRequest": {
+    "correoElectronico": "luis.ramirez@example.com",
+    "contrasenia": "Empleado123"
+  },
+  "salario": 18000.00
+}
+
+Devuelve el siguiente JSON:
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+
