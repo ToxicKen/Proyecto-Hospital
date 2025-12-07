@@ -35,7 +35,7 @@ public class EmpleadoServiceImp implements EmpleadoService {
     //Obtener Horarios de Empleado
     @Override
     public List<HorarioEmpleado> obtenerHorariosDeEmpleadoByIdEmpleado(Integer idEmpleado) {
-        return horarioEmpleadoRepo.findAllByEmpleadoId(idEmpleado);
+        return horarioEmpleadoRepo.findByEmpleadoIdEmpleado(idEmpleado);
     }
 
     //Obtener Días Laborales de Empleado
@@ -44,9 +44,5 @@ public class EmpleadoServiceImp implements EmpleadoService {
         return obtenerHorariosDeEmpleadoByIdEmpleado(idEmpleado).stream().map(HorarioEmpleado::getDia).toList();
     }
 
-    //Obtener Horas Laborales de Empleado
-    @Override
-    public List<LocalTime> obtenerHorasLaboralesByIdEmpleado(Integer idEmpleado,  Dia dia) {
-        return obtenerHorariosDeEmpleadoByIdEmpleado(idEmpleado).stream().filter(h-> h.getDia()==dia);
-    }
+
 }

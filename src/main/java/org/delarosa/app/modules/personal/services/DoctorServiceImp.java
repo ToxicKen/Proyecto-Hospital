@@ -117,7 +117,7 @@ public class DoctorServiceImp implements DoctorService {
     //Obtener Horas Laborales del doctor
     @Override
     public List<LocalTime> obtenerHorasByDoctorYFecha(Integer idDoctor,LocalDate dia) {
-        HorarioEmpleado horarioDia = horarioEmpleadoRepo.findByIdEmpleadoAndDia(idDoctor,Dia.fromDayOfWeek(dia.getDayOfWeek())).orElseThrow(()->new RuntimeException("Horario no Encontrado"));
+        HorarioEmpleado horarioDia = horarioEmpleadoRepo.findByEmpleadoIdEmpleadoAndDia(idDoctor,Dia.fromDayOfWeek(dia.getDayOfWeek())).orElseThrow(()->new RuntimeException("Horario no Encontrado"));
         return generarHorasDisponibles(horarioDia.getHrsInicio(),horarioDia.getHrsFin());
     }
     

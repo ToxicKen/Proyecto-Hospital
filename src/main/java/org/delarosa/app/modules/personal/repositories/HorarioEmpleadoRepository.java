@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface HorarioEmpleadoRepository extends JpaRepository<HorarioEmpleado,Integer> {
-    List<HorarioEmpleado> findAllByEmpleadoId(Integer idEmpleado);
+    List<HorarioEmpleado> findByEmpleadoIdEmpleado(Integer idEmpleado);
 
-    Optional<HorarioEmpleado> findByIdEmpleadoAndDia(Integer idEmpleado, Dia dia);
+    Optional<HorarioEmpleado> findByEmpleadoIdEmpleadoAndDia(Integer idEmpleado, Dia dia);
 }

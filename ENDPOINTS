@@ -20,6 +20,44 @@ Este es el token del usuario el cual se debe guardar en el fronted
 
 Paciente
 
+Para el registro se mostraran los Padecimientos ya existentes en el sistema
+
+ENDPOINT /api/paciente/registrar/padecimientos
+
+Devuelve el siguiente JSON:
+
+[
+    {
+        "id": 1,
+        "nombre": "Diabetes"
+    },
+    {
+        "id": 2,
+        "nombre": "Hipertensión"
+    }
+]
+
+Para el registro tambien se mostraran las Alergias ya existentes en el sistema
+
+ENDPOINT /api/paciente/registrar/alergias
+
+Devuelve el siguiente JSON:
+
+[
+  {
+    "id": 1,
+    "nombre": "Penicilina"
+  },
+  {
+    "id": 2,
+    "nombre": "Ácido acetilsalicílico"
+  },
+  {
+    "id": 3,
+    "nombre": "Polen"
+  }
+]
+
 Registro de Paciente
 
 ENDPOINT: /api/paciente/registrar
@@ -231,7 +269,94 @@ Devuelve el siguiente JSON:
 
 
 
+Obtener Citas de un Paciente con o sin filtros
 
+ENDPOINT: /api/paciente/citas
+
+Recibe el header con el token
+
+Devuelve el siguiente JSON:
+
+[
+  {
+    "folioCita": 101,
+    "fechaCita": "2025-12-10T10:30:00",
+    "estatus": "PAGADA_PENDIENTE_POR_ATENDER",
+    "nombrePaciente": "Juan Pérez López",
+    "nombreDoctor": "Ana Gómez",
+    "especialidad": "Cardiología",
+    "consultorio": 5,
+    "costo": 500.00
+  },
+  {
+    "folioCita": 102,
+    "fechaCita": "2025-12-12T09:00:00",
+    "estatus": "PAGADA_PENDIENTE_POR_ATENDER",
+    "nombrePaciente": "Juan Pérez López",
+    "nombreDoctor": "Luis Martínez",
+    "especialidad": "Neurología",
+    "consultorio": 3,
+    "costo": 700.00
+  }
+]
+
+ENDPOINT: /api/paciente/citas/estatus
+Recibe: Header con el token, Query: ?estatus=PAGADA_PENDIENTE_POR_ATENDER
+Devuelve el siguiente JSON:
+[
+{
+"folioCita": 101,
+"fechaCita": "2025-12-10T10:30:00",
+"estatus": "PAGADA_PENDIENTE_POR_ATENDER",
+"nombrePaciente": "Juan Pérez López",
+"nombreDoctor": "Ana Gómez",
+"especialidad": "Cardiología",
+"consultorio": 5,
+"costo": 500.00
+},
+{
+"folioCita": 102,
+"fechaCita": "2025-12-12T09:00:00",
+"estatus": "PAGADA_PENDIENTE_POR_ATENDER",
+"nombrePaciente": "Juan Pérez López",
+"nombreDoctor": "Luis Martínez",
+"especialidad": "Neurología",
+"consultorio": 3,
+"costo": 700.00
+}
+]
+
+ENDPOINT: /api/paciente/citas/fechas
+Recibe: Header con el token, Query: ?fechaInicio=2025-12-01&fechaFin=2025-12-31
+Devuelve el siguiente JSON:
+[
+{
+"folioCita": 103,
+"fechaCita": "2025-12-05T14:00:00",
+"estatus": "Cancelada",
+"nombrePaciente": "Juan Pérez López",
+"nombreDoctor": "Carla Ruiz",
+"especialidad": "Pediatría",
+"consultorio": 2,
+"costo": 300.00
+}
+]
+
+ENDPOINT: /api/paciente/citas/doctor
+Recibe: Header con el token, Query: ?idDoctor=10
+Devuelve el siguiente JSON:
+[
+{
+"folioCita": 104,
+"fechaCita": "2025-12-08T11:00:00",
+"estatus": "Atendida",
+"nombrePaciente": "Juan Pérez López",
+"nombreDoctor": "Ana Gómez",
+"especialidad": "Cardiología",
+"consultorio": 5,
+"costo": 500.00
+}
+]
 
 
 DOCTOR

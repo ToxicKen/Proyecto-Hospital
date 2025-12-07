@@ -16,6 +16,7 @@ import org.delarosa.app.modules.security.dto.AuthResponse;
 import org.delarosa.app.modules.security.jwt.JwtService;
 import org.delarosa.app.modules.security.entities.Usuario;
 import org.delarosa.app.modules.security.services.UsuarioService;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,7 +66,7 @@ public class PacienteServiceImp implements PacienteService {
     // --- Obtener Datos de Paciente desde Token ---
 
     @Override
-    public PacienteResponse obtenerDatosPacienteByCorreo(String correo) {
+    public PacienteResponse obtenerDatosPaciente(String correo) {
         return mapearPaciente(obtenerPacienteByCorreo(correo));
     }
 
@@ -90,6 +91,23 @@ public class PacienteServiceImp implements PacienteService {
         return pacienteRepo.buscarPorEmailDeUsuario(email)
                 .orElseThrow(() -> new RuntimeException("No se encontró un Paciente vinculado al usuario: " + email));
     }
+
+    // --- Obtener Todos los padecimientos ya existentes en el sistema ---
+    @Override
+    public List<PadecimientoExistenteDTO> obtenerPadecimientosExistentes() {
+        return padecimientoRepo.findAll()
+                .stream()
+                .map(this::mapearPadecimiento)
+                .toList();
+    }
+
+    // --- Obtener Todos los padecimientos ya existentes en el sistema ---
+
+    @Override
+    public List<AlergiaExistenteDTO> obtenerAlergiasExistentes() {
+        return alergiaRepo.findAll().stream().map(a->new AlergiaExistenteDTO(a.getIdAlergia(),a.getNombre())).toList();
+    }
+
 
     // --- Metodos de apoyo---
 
@@ -212,4 +230,7 @@ public class PacienteServiceImp implements PacienteService {
         return paciente.getPadecimientos().stream().map(p -> new PadecimientoDatosDTO(p.getPadecimiento().getNombre(), p.getDescripcion())).toList();
     }
 
+    private PadecimientoExistenteDTO mapearPadecimiento(Padecimiento padecimiento) {
+        return new PadecimientoExistenteDTO(padecimiento.getIdPadecimiento(), padecimiento.getNombre());
+    }
 }

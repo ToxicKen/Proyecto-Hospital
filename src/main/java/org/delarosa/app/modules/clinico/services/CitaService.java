@@ -5,6 +5,7 @@ import org.delarosa.app.modules.clinico.dtos.CitaResponse;
 import org.delarosa.app.modules.clinico.dtos.CrearCitaRequest;
 import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
 import org.delarosa.app.modules.clinico.entities.Cita;
+import org.delarosa.app.modules.clinico.enums.EstatusCita;
 import org.delarosa.app.modules.paciente.entities.Paciente;
 
 import java.math.BigDecimal;
@@ -18,4 +19,14 @@ public interface CitaService {
     Cita obtenerById(Integer id);
 
     List<LocalTime> obtenerHorasDisponiblesByDoctorIdYFecha(Integer idDoctor,LocalDate dia);
+
+
+    List<CitaResponse> obtenerCitasPacientePorEstatus(Integer idPaciente, EstatusCita estatus);
+
+    List<CitaResponse> obtenerCitasPacientePorFechas(Integer idPaciente, LocalDate fechaInicio, LocalDate fechaFin);
+
+    List<CitaResponse> obtenerCitasPacientePorDoctor(Integer idPaciente, Integer idDoctor);
+
+    List<CitaResponse> obtenerCitasPaciente(Integer idPaciente);
+
 }

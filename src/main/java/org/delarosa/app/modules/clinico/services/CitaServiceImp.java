@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -75,7 +76,7 @@ public class CitaServiceImp implements CitaService {
     public List<LocalTime> obtenerHorasDisponiblesByDoctorIdYFecha(Integer idDoctor, LocalDate dia) {
         LocalDateTime inicio = dia.atStartOfDay();
         LocalDateTime fin = dia.atTime(23, 59);
-        List<Cita> citas = citaRepository.findAllByDoctorIdAndFechaCitaHoraBetween(idDoctor, inicio, fin);
+        List<Cita> citas = citaRepository.findAllByDoctorIdDoctorAndFechaCitaBetween(idDoctor, inicio, fin);
         List<LocalTime> rangoHorasDoctor = doctorService.obtenerHorasByDoctorYFecha(idDoctor, dia);
 
         List<LocalTime> horasOcupadas = citas.stream()
@@ -85,6 +86,39 @@ public class CitaServiceImp implements CitaService {
         return rangoHorasDoctor.stream()
                 .filter(h -> !horasOcupadas.contains(h))
                 .toList();
+    }
+
+    //Filtros de Cita de un Paciente por distintos parámetros
+
+    @Override
+    public List<CitaResponse> obtenerCitasPaciente(Integer idPaciente) {
+        List<Object[]> resultados = citaRepository.filtrarCitas(
+                null, null, null, null, idPaciente, null
+        );
+        return resultados.stream().map(this::mapearCitaFiltrada).toList();
+    }
+
+    @Override
+    public List<CitaResponse> obtenerCitasPacientePorEstatus(Integer idPaciente, EstatusCita estatus) {
+        List<Object[]> resultados = citaRepository.filtrarCitas(
+                null, null, estatus.name(), null, idPaciente, null
+        );
+        return resultados.stream().map(this::mapearCitaFiltrada).toList();
+    }
+
+    @Override
+    public List<CitaResponse> obtenerCitasPacientePorFechas(Integer idPaciente, LocalDate fechaInicio, LocalDate fechaFin) {
+        List<Object[]> resultados = citaRepository.filtrarCitas(
+                fechaInicio, fechaFin, null, null, idPaciente, null
+        );
+        return resultados.stream().map(this::mapearCitaFiltrada).toList();
+    }
+
+    public List<CitaResponse> obtenerCitasPacientePorDoctor(Integer idPaciente, Integer idDoctor) {
+        List<Object[]> resultados = citaRepository.filtrarCitas(
+                null, null, null, null, idPaciente, idDoctor
+        );
+        return resultados.stream().map(this::mapearCitaFiltrada).toList();
     }
 
 
@@ -102,14 +136,15 @@ public class CitaServiceImp implements CitaService {
 
     private CitaResponse mapToResponseDTO(Cita cita) {
         return new CitaResponse(
-            cita.getFolioCita(),
+                cita.getFolioCita(),
+                cita.getFechaCita(),
+                cita.getEstatus().name(),
                 personaService.obtenerNombreCompletoPersona(cita.getPaciente().getPersona()),
                 personaService.obtenerNombreCompletoPersona(cita.getDoctor().getEmpleado().getPersona()),
                 cita.getDoctor().getEspecialidad().getNombre(),
                 cita.getDoctor().getConsultorio().getNumero(),
-                cita.getFechaCita(),
-                cita.getEstatus().name()
-                );
+                cita.getDoctor().getEspecialidad().getCosto()
+        );
     }
 
     private void validarDisponibilidadDoctor(Doctor doctor, LocalDateTime date) {
@@ -179,6 +214,21 @@ public class CitaServiceImp implements CitaService {
 
     private BigDecimal obtenerMontoDeCita(Cita cita) {
         return cita.getDoctor().getEspecialidad().getCosto();
+    }
+
+    //Método para mapear Citas filtradas a Cita Response
+
+    private CitaResponse mapearCitaFiltrada(Object[] filas) {
+        return new CitaResponse(
+                (Integer) filas[0],
+                ((Timestamp) filas[1]).toLocalDateTime(),
+                (String) filas[2],
+                (String) filas[3],
+                (String) filas[4],
+                (String) filas[5],
+                (Integer) filas[6],
+                (BigDecimal) filas[7]
+        );
     }
 
 }
