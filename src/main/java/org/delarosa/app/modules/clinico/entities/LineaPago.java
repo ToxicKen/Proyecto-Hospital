@@ -1,8 +1,7 @@
 package org.delarosa.app.modules.clinico.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,6 +9,9 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class LineaPago {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

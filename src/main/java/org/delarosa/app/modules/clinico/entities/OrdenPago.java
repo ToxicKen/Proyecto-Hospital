@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,5 +24,8 @@ public class OrdenPago {
     private BigDecimal montoTotal;
 
     private Boolean estatus;
+
+    @OneToMany(mappedBy = "ordenPago",cascade = CascadeType.ALL)
+    private List<LineaPago> lineaPago;
 
 }

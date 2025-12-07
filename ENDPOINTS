@@ -268,6 +268,28 @@ Devuelve el siguiente JSON:
 }
 
 
+Pagar Cita (Se genera una linea de pago si la cantidad de dinero pagado en una linea de pago es mayor que la de la orden de pago el estatus de la cita cambia pagado)
+
+ENDPOINT: /api/paciente/orden/pagar
+
+Recibe el token y el siguiente JSON:
+
+{
+  "folioCita": 101,
+  "montoPago": 500.00
+}
+
+Devuelve el siguiente JSON:
+
+{
+  "folioPago": 1,
+  "fechaPago": "2025-12-06T18:45:00",
+  "montoPagado": 200.00,
+  "ordenPagada": false,
+  "idOrdenPago": 10,
+  "montoTotalOrden": 500.00,
+  "totalPagadoHastaAhora": 200.00
+}
 
 Obtener Citas de un Paciente con o sin filtros
 

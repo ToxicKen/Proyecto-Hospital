@@ -2,6 +2,7 @@ package org.delarosa.app.modules.clinico.services;
 
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
+import org.delarosa.app.modules.clinico.entities.OrdenPago;
 import org.delarosa.app.modules.clinico.enums.EstatusCita;
 import org.delarosa.app.modules.clinico.exceptions.CitaNoEncontradaException;
 import org.delarosa.app.modules.clinico.exceptions.FechaFueraRangoException;
@@ -230,5 +231,6 @@ public class CitaServiceImp implements CitaService {
                 (BigDecimal) filas[7]
         );
     }
+
 
 }
