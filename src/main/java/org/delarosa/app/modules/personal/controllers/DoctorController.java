@@ -95,7 +95,7 @@ public class DoctorController {
         String email = authentication.getName();
         Doctor doctor = doctorService.obtenerDoctorByCorreo(email);
         List<RecetaPDF> historial = citaService.obtenerRecetasPorDoctor(doctor.getIdDoctor());
-
+        System.out.println("historial" + historial);
         if (historial.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -103,9 +103,9 @@ public class DoctorController {
     }
 
     @PutMapping("/cita/marcarAusencia/{folioCita}")
-    public ResponseEntity<String> marcarAusencia(@PathVariable Integer idCita) {
+    public ResponseEntity<String> marcarAusencia(@PathVariable Integer folioCita) {
         try {
-            String mensaje = citaService.marcarPacienteNoAcudio(idCita);
+            String mensaje = citaService.marcarPacienteNoAcudio(folioCita);
 
             if (mensaje.startsWith("Error")) {
                 return ResponseEntity.badRequest().body(mensaje);

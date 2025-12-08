@@ -38,6 +38,7 @@ public class UsuarioServiceImp implements UsuarioService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.correoElectronico(), loginRequest.contrasenia()));
         UserDetails user = usuarioRepo.findByCorreoElectronico(loginRequest.correoElectronico()).orElseThrow();
         String token = jwtService.getToken(user);
+        System.out.println("Token: " + token);
         return AuthResponse.builder().token(token).build();
     }
 

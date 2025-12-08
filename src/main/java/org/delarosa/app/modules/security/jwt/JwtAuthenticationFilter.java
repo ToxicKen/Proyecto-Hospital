@@ -23,6 +23,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
+    // Agrega este método para excluir rutas públicas
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        // Excluye rutas de autenticación y registro
+        return path.startsWith("/api/auth/") ||
+                path.startsWith("/api/paciente/registrar/");
+    }
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 

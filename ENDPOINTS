@@ -519,42 +519,50 @@ Mostrar las datos del paciente de una cita de un doctor
 ENDPOINT: /api/doctor/citas/citas/{folioCita}/historialPaciente
 
 Solo recibe el token y en el enpoint recibe el folio de la cita como parametro /citas/120/historialPaciente :
-dEVUELVE EL SIGUIERNTE json obvio NO SE DEBE USAR TODO XD
+
 {
-  "persona": {
-    "nombreCompleto": "Juan Martínez López",
-    "curp": "LOMJ990101HDFRXX09",
-    "direccion": "Av. Central #123, Centro",
-    "telefonos": [
-      {
-        "numero": "5512345678",
-        "tipo": "MOVIL"
-      }
-    ]
+  "pacienteResponse": {
+    "idPaciente": 51,
+    "nombre": "Juan",
+    "apellidoP": "Pérez",
+    "apellidoM": "García",
+    "curp": "PEGA900101HDFRZN01",
+    "direccion": {
+      "calle": "Av. Reforma",
+      "numero": "123",
+      "colonia": "Centro"
+    },
+    "usuario": {
+      "correoElectronico": "juan.perez@example.com",
+      "fechaCreacion": "2023-05-01T12:00:00"
+    },
+    "historialMedico": {
+      "idHistorialMedico": 10,
+      "peso": 70.5,
+      "estatura": 1.75,
+      "tipoSangre": "O+"
+    }
   },
-  "email": "juan@example.com",
-  "alergias": [
-    "Polen",
-    "Gluten",
-    "Alergia registrada 1"
-  ],
-  "padecimientos": [
+  "bitacora": [
     {
-      "id": 10,
-      "nombre": "Asma",
-      "descripcion": "Dificultad respiratoria ocasional"
+      "idHistorial": 1001,
+      "fechaCita": "2025-12-01",
+      "horaCita": "10:00",
+      "doctor": "Carlos López Martínez",
+      "especialidad": "Cardiología",
+      "paciente": "Juan Pérez García",
+      "consultorio": "101"
     },
     {
-      "id": 20,
-      "nombre": "Gastritis",
-      "descripcion": "Molestias estomacales frecuentes"
+      "idHistorial": 1002,
+      "fechaCita": "2025-12-05",
+      "horaCita": "14:00",
+      "doctor": "María Fernández Gómez",
+      "especialidad": "Dermatología",
+      "paciente": "Juan Pérez García",
+      "consultorio": "104"
     }
-  ],
-  "historialMedico": {
-    "peso": 70.5,
-    "estatura": 1.75,
-    "tipoSangre": "O_NEGATIVO"
-  }
+  ]
 }
 
 
@@ -632,7 +640,7 @@ const imprimirReceta = async (idReceta) => {
 };
 XD
 
-Paciente no acudio  a cita
+Paciente no acudio  a cita despuies de 1 hora y 15 minutos
 
 ENDPOINT: /api/cita/cita/marcarAusencia/{folioCita}
 
@@ -640,13 +648,57 @@ Recibe el folioCita /marcarAusencia/{folioCita}
 
 Devuelve string
 
+Recetas del doctor
+
+ENDPOINT: /api/doctor/recetas/historial
+recibe token
+devuelve
+[
+  {
+    "folioReceta": 101,
+    "pacienteNombre": "Juan Pérez",
+    "doctorNombre": "Dr. Carlos López",
+    "fechaEmision": "2025-12-08T09:00:00",
+    "recetaRequest": {
+      "medicamentos": [
+        {
+          "nombre": "Paracetamol",
+          "dosis": "500mg",
+          "frecuencia": "Cada 8 horas"
+        },
+        {
+          "nombre": "Amoxicilina",
+          "dosis": "250mg",
+          "frecuencia": "Cada 12 horas"
+        }
+      ],
+      "indicaciones": "Tomar con alimentos"
+    }
+  },
+  {
+    "folioReceta": 102,
+    "pacienteNombre": "María López",
+    "doctorNombre": "Dra. Ana García",
+    "fechaEmision": "2025-12-08T10:30:00",
+    "recetaRequest": {
+      "medicamentos": [
+        {
+          "nombre": "Ibuprofeno",
+          "dosis": "400mg",
+          "frecuencia": "Cada 8 horas"
+        }
+      ],
+      "indicaciones": "Evitar alcohol"
+    }
+  }
+]
 
 
 Recepcionista
 
 Registro Recepcionista
 
-ENDPOINT: /api/recepcionista
+ENDPOINT: /api/recepcionista/registro
 
 Recibe el siguiente JSON:
 
