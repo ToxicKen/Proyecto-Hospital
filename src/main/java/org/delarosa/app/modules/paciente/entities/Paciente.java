@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.delarosa.app.modules.general.entities.Persona;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,14 +25,17 @@ public class Paciente {
     @JoinColumn(name = "idPaciente", referencedColumnName = "idPersona")
     private Persona persona;
 
+    @Builder.Default
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PacientePadecimiento> padecimientos;
+    private List<PacientePadecimiento> padecimientos= new ArrayList<>();
 
+    @Builder.Default
     @ManyToMany
-    @JoinTable(name = "AlergiaPaciente",
+    @JoinTable(
+            name = "AlergiaPaciente",
             joinColumns = @JoinColumn(name = "idPaciente"),
             inverseJoinColumns = @JoinColumn(name = "idAlergia"))
-    private List<Alergia> alergias;
+    private List<Alergia> alergias = new ArrayList<>();
     
     @OneToOne(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private HistorialMedico historialMedico;

@@ -45,6 +45,7 @@ public class UsuarioServiceImp implements UsuarioService {
 
     @Override
     public Usuario crearUsuario(RegistroPersonaRequest persona, RegistroUsuarioRequest registroUsuarioRequest) {
+        System.out.println(registroUsuarioRequest.correoElectronico());
         verificarCorreoDuplicado(registroUsuarioRequest.correoElectronico());
     
         Persona personaCreada = personaService.crearPersona(persona);

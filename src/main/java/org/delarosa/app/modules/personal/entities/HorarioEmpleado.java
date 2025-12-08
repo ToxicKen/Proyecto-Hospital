@@ -27,7 +27,7 @@ public class HorarioEmpleado {
     private LocalTime hrsFin;
 
     @Enumerated(EnumType.STRING)
-    private Dia dia;
+    private Dia diaSemana;
 
     @ManyToOne
     @JoinColumn(name = "IdEmpleado",nullable = false)

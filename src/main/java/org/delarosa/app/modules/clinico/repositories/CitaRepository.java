@@ -34,7 +34,7 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
                                                         LocalDateTime inicio,
                                                         LocalDateTime fin);
 
-    @Procedure(name = "SP_Filtrar_Citas")
+    @Procedure(procedureName = "SP_Filtrar_Citas")
     List<Object[]> filtrarCitas(
             @Param("FechaInicio") LocalDate fechaInicio,
             @Param("FechaFin") LocalDate fechaFin,

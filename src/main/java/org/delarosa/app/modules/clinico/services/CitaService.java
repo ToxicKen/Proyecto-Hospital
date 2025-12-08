@@ -29,4 +29,9 @@ public interface CitaService {
 
     List<CitaResponse> obtenerCitasPaciente(Integer idPaciente);
 
+    List<CitaResponse> obtenerCitasDoctor(Integer idDoctor);
+
+
+
+
 }

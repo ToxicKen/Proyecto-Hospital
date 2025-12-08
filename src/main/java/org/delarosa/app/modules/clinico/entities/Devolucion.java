@@ -26,6 +26,6 @@ public class Devolucion {
     @Enumerated(EnumType.STRING)
     private TipoDevolucion tipoDevolucion;
 
-    private Integer PorcentajeDevuelto;
+    private Integer porcentajeDevolucion;
 
 }

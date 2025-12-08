@@ -426,6 +426,135 @@ Devuelve el siguiente JSON:
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 
+Obtener  Datos de un Doctor
+
+ENDPOINT /api/doctor/me
+
+Recibe el token en el header y devuelve un  json como el siguiente
+
+{
+    "persona": {
+        "idPersona": 53,
+        "nombreCompleto": "Carlos Hernández Lopez",
+        "curp": "LOHC920315HDFRRT05",
+        "direccion": "Avenida Central Jardines 87",
+        "telefonos": [
+            {
+                "numero": "5512345678",
+                "tipo": "MOVIL"
+            },
+            {
+                "numero": "5543219987",
+                "tipo": "CASA"
+            }
+        ]
+    },
+    "horarios": [
+        {
+            "dia": "LUNES",
+            "hraEntrada": "09:00:00",
+            "hraSalida": "17:00:00"
+        },
+        {
+            "dia": "MARTES",
+            "hraEntrada": "14:00:00",
+            "hraSalida": "20:00:00"
+        },
+        {
+            "dia": "MIERCOLES",
+            "hraEntrada": "14:00:00",
+            "hraSalida": "20:00:00"
+        }
+    ],
+    "email": "carlos.lopez@example.com",
+    "especialidad": "Medicina General",
+    "Consultorio": 102,
+    "cedulaProfesional": "98765432"
+}
+
+
+
+Agregar Horario a un Empleado
+
+ENDPOINT:/api/recepcionista/{idEmpleado}/horarios
+
+Recibe el idEmpleado como variable y el siguiente JSON
+
+{
+  "dia": "MIERCOLES", // Debe ser el nombre en mayusculas y en español
+  "hraEntrada": "14:00",
+  "hraSalida": "20:00"
+}
+
+Devuelve un String si todo sale bien
+
+Mostrar las citas de un doctor solo se muestran las Pendientes y las que ya atendio
+
+
+ENDPOINT: /api/doctor/citas
+
+Solo recibe el token y devuelve el siguiente JSON:
+[
+    {
+        "folioCita": 2,
+        "fechaCita": "2025-12-10T15:00:00",
+        "estatus": "PAGADA_PENDIENTE_POR_ATENDER",
+        "nombrePaciente": "Ana María Torres García",
+        "nombreDoctor": "Carlos Lopez",
+        "especialidad": "Medicina General",
+        "consultorio": 102,
+        "costo": 700.00
+    }
+]
+
+
+Mostrar las datos del paciente de una cita de un doctor
+
+
+ENDPOINT: /api/doctor/citas/citas/{folioCita}/historialPaciente
+
+Solo recibe el token y en el enpoint recibe el folio de la cita como parametro /citas/120/historialPaciente :
+dEVUELVE EL SIGUIERNTE json obvio NO SE DEBE USAR TODO XD
+{
+  "persona": {
+    "nombreCompleto": "Juan Martínez López",
+    "curp": "LOMJ990101HDFRXX09",
+    "direccion": "Av. Central #123, Centro",
+    "telefonos": [
+      {
+        "numero": "5512345678",
+        "tipo": "MOVIL"
+      }
+    ]
+  },
+  "email": "juan@example.com",
+  "alergias": [
+    "Polen",
+    "Gluten",
+    "Alergia registrada 1"
+  ],
+  "padecimientos": [
+    {
+      "id": 10,
+      "nombre": "Asma",
+      "descripcion": "Dificultad respiratoria ocasional"
+    },
+    {
+      "id": 20,
+      "nombre": "Gastritis",
+      "descripcion": "Molestias estomacales frecuentes"
+    }
+  ],
+  "historialMedico": {
+    "peso": 70.5,
+    "estatura": 1.75,
+    "tipoSangre": "O_NEGATIVO"
+  }
+}
+
+
+
+
 Recepcionista
 
 Registro Recepcionista

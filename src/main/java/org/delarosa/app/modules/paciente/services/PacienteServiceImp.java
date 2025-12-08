@@ -57,7 +57,8 @@ public class PacienteServiceImp implements PacienteService {
         Paciente nvoPaciente = Paciente.builder()
                 .persona(usuarioCreado.getPersona())
                 .build();
-        agregarAlergias(nvoPaciente, registroPacienteRequest);
+        nvoPaciente = pacienteRepo.save(nvoPaciente);
+        System.out.println(nvoPaciente.getIdPaciente());
         agregarPadecimientos(nvoPaciente, registroPacienteRequest.padecimientos());
         nvoPaciente.setHistorialMedico(crearHistorialMedico(nvoPaciente, registroPacienteRequest.historialMedico()));
         return pacienteRepo.save(nvoPaciente);
@@ -163,12 +164,10 @@ public class PacienteServiceImp implements PacienteService {
 
     private PacientePadecimiento crearPacientePadecimiento(Paciente paciente, PadecimientoDTO dto) {
         Padecimiento padecimiento = obtenerOPersistirPadecimiento(dto);
-
-        PacientePadecimientoId id = new PacientePadecimientoId(
-                paciente.getIdPaciente(),
-                padecimiento.getIdPadecimiento()
-        );
-
+        System.out.println(paciente.getIdPaciente());
+        PacientePadecimientoId id = new PacientePadecimientoId();
+        id.setIdPaciente(paciente.getIdPaciente());
+        id.setIdPadecimiento(padecimiento.getIdPadecimiento());
         return PacientePadecimiento.builder()
                 .idPadecimientoPaciente(id)
                 .paciente(paciente)

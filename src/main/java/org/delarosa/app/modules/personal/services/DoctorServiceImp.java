@@ -5,7 +5,9 @@ import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
 import org.delarosa.app.modules.clinico.entities.Cita;
 import org.delarosa.app.modules.general.enums.Dia;
 import org.delarosa.app.modules.general.services.PersonaService;
+import org.delarosa.app.modules.personal.dtos.DoctorDatosCompletosResponse;
 import org.delarosa.app.modules.personal.dtos.DoctorDatosResponse;
+import org.delarosa.app.modules.personal.dtos.HorarioEmpleadoDTO;
 import org.delarosa.app.modules.personal.entities.Especialidad;
 import org.delarosa.app.modules.personal.entities.HorarioEmpleado;
 import org.delarosa.app.modules.personal.exceptions.EspecialidadNoEncontradaException;
@@ -25,6 +27,7 @@ import org.delarosa.app.modules.security.services.UsuarioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.print.Doc;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -117,10 +120,26 @@ public class DoctorServiceImp implements DoctorService {
     //Obtener Horas Laborales del doctor
     @Override
     public List<LocalTime> obtenerHorasByDoctorYFecha(Integer idDoctor,LocalDate dia) {
-        HorarioEmpleado horarioDia = horarioEmpleadoRepo.findByEmpleadoIdEmpleadoAndDia(idDoctor,Dia.fromDayOfWeek(dia.getDayOfWeek())).orElseThrow(()->new RuntimeException("Horario no Encontrado"));
+        HorarioEmpleado horarioDia = horarioEmpleadoRepo.findByEmpleadoIdEmpleadoAndDiaSemana(idDoctor,Dia.fromDayOfWeek(dia.getDayOfWeek())).orElseThrow(()->new RuntimeException("Horario no Encontrado"));
         return generarHorasDisponibles(horarioDia.getHrsInicio(),horarioDia.getHrsFin());
     }
-    
+
+    //Obtener Los datos de un Doctor
+
+    @Override
+    public DoctorDatosCompletosResponse obtenerDatosDoctor(String email) {
+        Doctor doctor = obtenerDoctorByCorreo(email);
+        return  mapearDoctorCompleto(doctor);
+    }
+
+    //Obtener doctor por Correo
+
+    @Override
+    public Doctor obtenerDoctorByCorreo(String correo) {
+        return doctorRepo.buscarPorEmailDeUsuario(correo).orElseThrow(()->new DoctorNoEncontradoException("Doctor no encontrado"));
+    }
+
+
     // --- Metodos de apoyo ---
 
     private void asignarRolDoctor(Usuario usuarioCreado) {
@@ -143,13 +162,28 @@ public class DoctorServiceImp implements DoctorService {
                 doctor.getEspecialidad().getNombre(),doctor.getConsultorio().getIdConsultorio());
     }
 
-    private List<LocalTime> generarHorasDisponibles(LocalTime inicio, LocalTime fim) {
+    private List<LocalTime> generarHorasDisponibles(LocalTime inicio, LocalTime fin) {
         List<LocalTime> horasDisponibles = new ArrayList<>();
-        while (!inicio.isBefore(fim)) {
+        while (!inicio.isAfter(fin)) {
             horasDisponibles.add(inicio);
-            inicio.plusHours(1);
-        }
+            inicio = inicio.plusHours(1);        }
         return horasDisponibles;
+    }
+
+
+    private DoctorDatosCompletosResponse mapearDoctorCompleto(Doctor doctor) {
+        List<HorarioEmpleadoDTO> horarios = mapearHorarios(doctor.getEmpleado().getHorarios());
+        return new DoctorDatosCompletosResponse(personaService.obtenerResponsePersona(doctor.getEmpleado().getPersona()),
+                horarios,
+                doctor.getEmpleado().getPersona().getUsuario().getCorreoElectronico(),
+                doctor.getEspecialidad().getNombre(),
+                doctor.getConsultorio().getNumero(),
+                doctor.getCedulaProfesional()
+        );
+    }
+
+    private List<HorarioEmpleadoDTO> mapearHorarios(List<HorarioEmpleado> horarios) {
+        return horarios.stream().map(h-> new HorarioEmpleadoDTO(h.getDiaSemana().name(),h.getHrsInicio(),h.getHrsFin())).toList();
     }
 
 

@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,12 +40,13 @@ public class Usuario implements UserDetails {
     @JoinColumn(name = "idPersona", referencedColumnName = "idPersona",nullable = false)
     private Persona persona;
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "UsuarioRol"
             , joinColumns = @JoinColumn(name = "idUsuario",nullable = false)
             , inverseJoinColumns = @JoinColumn(name = "idRol",nullable = false))
-    private Set<Rol> roles;
+    private Set<Rol> roles = new HashSet<>();
 
     @PrePersist
     public void prePersist() {

@@ -83,7 +83,11 @@ public class CitaServiceImp implements CitaService {
         List<LocalTime> horasOcupadas = citas.stream()
                 .map(c -> c.getFechaCita().toLocalTime())
                 .toList();
-        
+        System.out.println("Fecha solicitada: " + dia);
+        System.out.println("Horas base del doctor (tamaño): " + rangoHorasDoctor.size());
+        System.out.println("Horas base del doctor (valores): " + rangoHorasDoctor);
+        System.out.println("Horas ocupadas por citas: " + horasOcupadas);
+
         return rangoHorasDoctor.stream()
                 .filter(h -> !horasOcupadas.contains(h))
                 .toList();
@@ -92,6 +96,7 @@ public class CitaServiceImp implements CitaService {
     //Filtros de Cita de un Paciente por distintos parámetros
 
     @Override
+    @Transactional(readOnly = true)
     public List<CitaResponse> obtenerCitasPaciente(Integer idPaciente) {
         List<Object[]> resultados = citaRepository.filtrarCitas(
                 null, null, null, null, idPaciente, null
@@ -100,6 +105,7 @@ public class CitaServiceImp implements CitaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CitaResponse> obtenerCitasPacientePorEstatus(Integer idPaciente, EstatusCita estatus) {
         List<Object[]> resultados = citaRepository.filtrarCitas(
                 null, null, estatus.name(), null, idPaciente, null
@@ -108,6 +114,7 @@ public class CitaServiceImp implements CitaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CitaResponse> obtenerCitasPacientePorFechas(Integer idPaciente, LocalDate fechaInicio, LocalDate fechaFin) {
         List<Object[]> resultados = citaRepository.filtrarCitas(
                 fechaInicio, fechaFin, null, null, idPaciente, null
@@ -115,12 +122,33 @@ public class CitaServiceImp implements CitaService {
         return resultados.stream().map(this::mapearCitaFiltrada).toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<CitaResponse> obtenerCitasPacientePorDoctor(Integer idPaciente, Integer idDoctor) {
         List<Object[]> resultados = citaRepository.filtrarCitas(
                 null, null, null, null, idPaciente, idDoctor
         );
         return resultados.stream().map(this::mapearCitaFiltrada).toList();
     }
+
+    // Obtener Citas del Doctor (Pendientes por atender y atendidas
+
+    @Override
+    @Transactional(readOnly = true)
+        public List<CitaResponse> obtenerCitasDoctor(Integer idDoctor) {
+        List<CitaResponse> pendientes = obtenerCitasPendientes(idDoctor);
+        List<CitaResponse> atendidas = obtenerCitasAtendidas(idDoctor);
+
+        List<CitaResponse> resultado = new ArrayList<>();
+        resultado.addAll(pendientes);
+        resultado.addAll(atendidas);
+
+        return resultado;
+    }
+
+
+
+
 
 
     // --- Metodos de apoyo ---
@@ -172,7 +200,7 @@ public class CitaServiceImp implements CitaService {
 
     private boolean doctorTrabajaEseDia(Doctor doctor, LocalDateTime fecha) {
         return doctor.getEmpleado().getHorarios().stream()
-                .anyMatch(h -> h.getDia().getDay().equals(fecha.getDayOfWeek()));
+                .anyMatch(h -> h.getDiaSemana().getDay().equals(fecha.getDayOfWeek()));
     }
 
     private boolean horaDisponibleDoctor(Doctor doctor, LocalDateTime fecha) {
@@ -196,7 +224,7 @@ public class CitaServiceImp implements CitaService {
         HorarioEmpleado horario = doctor.getEmpleado()
                 .getHorarios()
                 .stream()
-                .filter(h -> h.getDia().getDay().equals(diaSemana))
+                .filter(h -> h.getDiaSemana().getDay().equals(diaSemana))
                 .findFirst()
                 .orElseThrow(() -> new DoctorNoTrabajaEseDiaException("Día fuera del horario del doctor"));
 
@@ -222,7 +250,7 @@ public class CitaServiceImp implements CitaService {
     private CitaResponse mapearCitaFiltrada(Object[] filas) {
         return new CitaResponse(
                 (Integer) filas[0],
-                ((Timestamp) filas[1]).toLocalDateTime(),
+                (LocalDateTime) filas[1],
                 (String) filas[2],
                 (String) filas[3],
                 (String) filas[4],
@@ -231,6 +259,33 @@ public class CitaServiceImp implements CitaService {
                 (BigDecimal) filas[7]
         );
     }
+
+    private List<CitaResponse> obtenerCitasPendientes(Integer idDoctor) {
+        List<Object[]> datos = citaRepository.filtrarCitas(
+                null, null,
+                EstatusCita.PAGADA_PENDIENTE_POR_ATENDER.name(),
+                null, null,
+                idDoctor
+        );
+
+        return datos.stream()
+                .map(this::mapearCitaFiltrada)
+                .toList();
+    }
+
+    private List<CitaResponse> obtenerCitasAtendidas(Integer idDoctor) {
+        List<Object[]> datos = citaRepository.filtrarCitas(
+                null, null,
+                EstatusCita.ATENDIDA.name(),
+                null, null,
+                idDoctor
+        );
+
+        return datos.stream()
+                .map(this::mapearCitaFiltrada)
+                .toList();
+    }
+
 
 
 }

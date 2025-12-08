@@ -18,10 +18,12 @@ public class PacientePadecimiento {
 
     @ManyToOne
     @MapsId("idPaciente")
+    @JoinColumn(name = "idPaciente")
     private Paciente paciente;
 
     @ManyToOne
     @MapsId("idPadecimiento")
+    @JoinColumn(name = "idPadecimiento")
     private Padecimiento padecimiento;
 
     @Column

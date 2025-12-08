@@ -20,18 +20,21 @@ public class Cita {
     private Integer folioCita;
 
     @OneToOne
-    @JoinColumn(name = "idPaciente", referencedColumnName = "idPaciente")
+    @JoinColumn(name = "idPaciente", referencedColumnName = "idPaciente",nullable = false)
     private Paciente paciente;
 
     @OneToOne
-    @JoinColumn(name = "idDoctor", referencedColumnName = "idDoctor")
+    @JoinColumn(name = "idDoctor", referencedColumnName = "idDoctor",nullable = false)
     private Doctor doctor;
 
+    @Column(nullable = false)
     private LocalDateTime fechaCita;
 
+    @Column(nullable = false)
     private LocalDateTime fechaSolicitud;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 100)
     private EstatusCita estatus;
 
     @OneToOne(mappedBy = "cita",cascade = CascadeType.PERSIST,orphanRemoval = true)

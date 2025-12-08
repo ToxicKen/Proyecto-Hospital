@@ -1,6 +1,7 @@
 package org.delarosa.app.modules.personal.services;
 
 import org.delarosa.app.modules.general.enums.Dia;
+import org.delarosa.app.modules.personal.dtos.HorarioEmpleadoDTO;
 import org.delarosa.app.modules.personal.dtos.RegistroEmpleadoRequest;
 import org.delarosa.app.modules.personal.entities.Empleado;
 import org.delarosa.app.modules.personal.entities.HorarioEmpleado;
@@ -16,6 +17,7 @@ public interface EmpleadoService {
 
     List<Dia> obtenerDiasLaboralesByIdEmpleado(Integer idEmpleado);
 
+    void agregarHorario(Integer idEmpleado, HorarioEmpleadoDTO dto);
 
 
 }

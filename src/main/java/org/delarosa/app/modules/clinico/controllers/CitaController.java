@@ -1,7 +1,6 @@
 package org.delarosa.app.modules.clinico.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.delarosa.app.modules.clinico.dtos.*;
 import org.delarosa.app.modules.clinico.entities.Cita;
 import org.delarosa.app.modules.clinico.services.CitaService;
@@ -17,7 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -64,6 +62,7 @@ public class CitaController {
             @PathVariable Integer idDoctor,
             @RequestParam String fecha) {
         LocalDate dia = LocalDate.parse(fecha);
+        System.out.println(dia);
         List<LocalTime> horasDisponibles = citaService.obtenerHorasDisponiblesByDoctorIdYFecha(idDoctor, dia);
         return ResponseEntity.ok(horasDisponibles);
     }
@@ -82,7 +81,7 @@ public class CitaController {
     }
 
     //Pagar una Cita
-    @PostMapping("/orden/pagar")
+    @PostMapping("/paciente/orden/pagar")
     @PreAuthorize("hasRole('PACIENTE')")
     public ResponseEntity<LineaPagoResponse> pagarOrden(@RequestBody LineaPagoRequest dto) {
         Cita cita = citaService.obtenerById(dto.folioCita());
