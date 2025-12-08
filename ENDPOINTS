@@ -553,6 +553,44 @@ dEVUELVE EL SIGUIERNTE json obvio NO SE DEBE USAR TODO XD
 }
 
 
+Crear Receta solo se puede si ya es la hora y el dia indicado agregando 15 minutos mas de tolerancioa al final
+
+
+
+ENDPOINT: /api/cita/doctor/receta
+
+Recebe el token y el json:
+
+{
+  "folioCita": 3,
+  "diagnostico": "Faringitis aguda bacteriana",
+  "observaciones": "Se recomienda reposo absoluto por 3 días y aislamiento relativo.",
+  "medicamentos": [
+    {
+      "nombre": "Amoxicilina 500mg",
+      "tratamiento": "Tomar una tableta cada 8 horas por 7 días",
+      "cantidad": 21
+    },
+    {
+      "nombre": "Paracetamol 500mg",
+      "tratamiento": "Tomar una tableta cada 8 horas en caso de fiebre o dolor",
+      "cantidad": 10
+    }
+  ]
+}
+
+Devuelve
+{
+           "mensaje": "Receta generada y enviada correctamente.",
+           "idReceta": 45
+         }
+
+Obtener PDF de la receta
+
+ENDPOINT: /api/cita/doctor/receta/{id}/pdf
+
+Recibe el token y el párametro de la receta  /api/cita/doctor/receta/1/pdf
+
 
 
 Recepcionista

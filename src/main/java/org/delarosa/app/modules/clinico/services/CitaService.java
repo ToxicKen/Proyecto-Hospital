@@ -4,6 +4,7 @@ package org.delarosa.app.modules.clinico.services;
 import org.delarosa.app.modules.clinico.dtos.CitaResponse;
 import org.delarosa.app.modules.clinico.dtos.CrearCitaRequest;
 import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
+import org.delarosa.app.modules.clinico.dtos.RecetaRequest;
 import org.delarosa.app.modules.clinico.entities.Cita;
 import org.delarosa.app.modules.clinico.enums.EstatusCita;
 import org.delarosa.app.modules.paciente.entities.Paciente;
@@ -31,6 +32,7 @@ public interface CitaService {
 
     List<CitaResponse> obtenerCitasDoctor(Integer idDoctor);
 
+    Integer CrearReceta(RecetaRequest recetaRequest);
 
 
 

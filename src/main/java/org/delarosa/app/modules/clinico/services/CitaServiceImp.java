@@ -2,7 +2,10 @@ package org.delarosa.app.modules.clinico.services;
 
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
+import org.delarosa.app.modules.clinico.dtos.RecetaRequest;
+import org.delarosa.app.modules.clinico.entities.MedicamentosReceta;
 import org.delarosa.app.modules.clinico.entities.OrdenPago;
+import org.delarosa.app.modules.clinico.entities.Receta;
 import org.delarosa.app.modules.clinico.enums.EstatusCita;
 import org.delarosa.app.modules.clinico.exceptions.CitaNoEncontradaException;
 import org.delarosa.app.modules.clinico.exceptions.FechaFueraRangoException;
@@ -11,6 +14,7 @@ import org.delarosa.app.modules.clinico.dtos.CrearCitaRequest;
 import org.delarosa.app.modules.clinico.entities.Cita;
 import org.delarosa.app.modules.clinico.exceptions.CitaPendienteException;
 import org.delarosa.app.modules.clinico.repositories.CitaRepository;
+import org.delarosa.app.modules.clinico.repositories.RecetaRepository;
 import org.delarosa.app.modules.paciente.entities.Paciente;
 import org.delarosa.app.modules.paciente.services.PacienteService;
 import org.delarosa.app.modules.personal.exceptions.DoctorNoTrabajaEseDiaException;
@@ -40,6 +44,7 @@ public class CitaServiceImp implements CitaService {
     private final PagoService pagoService;
     private final PersonaService personaService;
     private final CitaRepository citaRepository;
+    private final RecetaRepository recetaRepo;
 
     // --- Crear Cita ---
 
@@ -146,10 +151,56 @@ public class CitaServiceImp implements CitaService {
         return resultado;
     }
 
+    // --- Crear receta ---
 
+    @Override
+    @Transactional
+    public Integer CrearReceta(RecetaRequest dto) {
+        Cita cita = obtenerById(dto.folioCita());
+        if (cita.getEstatus() == EstatusCita.ATENDIDA) {
+            throw new IllegalStateException("Error: Esta cita ya fue atendida y tiene una receta generada.");
+        }
 
+        if (cita.getEstatus() == EstatusCita.CANCELADA_DOCTOR ||  cita.getEstatus() == EstatusCita.CANCELADA_FALTA_DE_PAGO || cita.getEstatus() ==  EstatusCita.CANCELADA_PACIENTE ) {
+            throw new IllegalStateException("Error: No se puede generar receta de una cita cancelada.");
+        }
 
+        LocalDateTime ahora = LocalDateTime.now();
+        System.out.println("Ahora: " + ahora);
+        LocalDateTime inicioCita = cita.getFechaCita();
+        System.out.println(inicioCita);
+        LocalDateTime finLimite = inicioCita.plusHours(2).plusMinutes(15);
+        System.out.println(finLimite);
+        if (ahora.isBefore(inicioCita)) {
+            throw new IllegalArgumentException(
+                    "Error: Aún no es la hora de la cita. Inicia a las: " + inicioCita.toLocalTime());
+        }
 
+        if (ahora.isAfter(finLimite)) {
+            throw new IllegalArgumentException(
+                    "Error: El tiempo para generar la receta ha expirado. El límite era: " + finLimite.toLocalTime());
+        }
+
+        Receta receta = Receta.builder()
+                .cita(cita)
+                .diagnostico(dto.diagnostico())
+                .observaciones(dto.observaciones())
+                .build();
+
+        List<MedicamentosReceta> listaMedicamentos = dto.medicamentos().stream()
+                .map(medDto -> MedicamentosReceta.builder()
+                        .nombre(medDto.nombre())
+                        .tratamiento(medDto.tratamiento())
+                        .cantidad(medDto.cantidad())
+                        .receta(receta)
+                        .build()
+                ).toList();
+        cita.setEstatus(EstatusCita.ATENDIDA);
+        citaRepository.save(cita);
+        receta.setMedicamentos(listaMedicamentos);
+        recetaRepo.save(receta);
+        return receta.getFolioReceta();
+    }
 
     // --- Metodos de apoyo ---
 

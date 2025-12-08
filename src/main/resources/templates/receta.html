@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Receta Médica</title>
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif; /* Fuentes estándar para PDF */
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            font-size: 12px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        /* CAMBIO DE DISEÑO: Usamos tabla para el encabezado porque Flexbox no funciona en PDF */
+        .info-table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+        .info-table td {
+            border: none; /* Sin bordes para esta parte */
+            padding: 5px;
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin: 15px 0 5px 0;
+            color: #4CAF50;
+            border-bottom: 1px solid #4CAF50;
+            padding-bottom: 2px;
+            font-size: 14px;
+        }
+
+        /* Tabla de medicamentos */
+        .meds-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .meds-table th, .meds-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .meds-table th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Receta Médica</h1>
+    <p>Hospital del Rosario</p>
+</div>
+
+<table class="info-table">
+    <tr>
+        <td>
+            <p><strong>Paciente:</strong> <span th:text="${receta.pacienteNombre}"></span></p>
+            <p><strong>Folio de Cita:</strong> <span th:text="${receta.recetaRequest.folioCita}"></span></p>
+        </td>
+        <td style="text-align: right;">
+            <p><strong>Doctor:</strong> <span th:text="${receta.doctorNombre}"></span></p>
+
+            <p><strong>Fecha:</strong> <span th:text="${receta.fechaEmision}"></span></p>        </td>
+    </tr>
+</table>
+
+<div class="section-title">Diagnóstico y Observaciones</div>
+<div style="margin-bottom: 20px;">
+    <p><strong>Diagnóstico:</strong> <span th:text="${receta.recetaRequest.diagnostico}"></span></p>
+    <p><strong>Observaciones:</strong> <span th:text="${receta.recetaRequest.observaciones}"></span></p>
+</div>
+
+<div class="section-title">Prescripción Médica</div>
+
+<table class="meds-table">
+    <thead>
+    <tr>
+        <th style="width: 30%">Medicamento</th>
+        <th style="width: 50%">Tratamiento / Indicaciones</th>
+        <th style="width: 20%">Cantidad</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="m : ${receta.recetaRequest.medicamentos}">
+        <td th:text="${m.nombre}"></td>
+
+        <td th:text="${m.tratamiento}"></td>
+
+        <td th:text="${m.cantidad}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="signature">
+    <div class="signature-line"></div>
+
+    <p>Firma del Doctor</p>
+
+    <p style="font-weight: bold; margin-top: 2px;">
+        Dr. <span th:text="${receta.doctorNombre}"></span>
+    </p>
+</div>
+
+<div class="footer">
+    <p>Este documento es una receta médica oficial generada electrónicamente.</p>
+</div>
+
+</body>
+</html>
