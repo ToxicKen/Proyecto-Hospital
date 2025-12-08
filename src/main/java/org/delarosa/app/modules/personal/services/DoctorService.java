@@ -31,5 +31,6 @@ public interface DoctorService {
 
     Doctor obtenerDoctorByCorreo(String correo);
 
+    void darDeBajaDoctor(Integer idDoctor);
 
 }

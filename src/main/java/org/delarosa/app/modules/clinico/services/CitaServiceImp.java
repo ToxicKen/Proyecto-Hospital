@@ -1,16 +1,13 @@
 package org.delarosa.app.modules.clinico.services;
 
 import lombok.RequiredArgsConstructor;
-import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
-import org.delarosa.app.modules.clinico.dtos.RecetaRequest;
+import org.delarosa.app.modules.clinico.dtos.*;
 import org.delarosa.app.modules.clinico.entities.MedicamentosReceta;
 import org.delarosa.app.modules.clinico.entities.OrdenPago;
 import org.delarosa.app.modules.clinico.entities.Receta;
 import org.delarosa.app.modules.clinico.enums.EstatusCita;
 import org.delarosa.app.modules.clinico.exceptions.CitaNoEncontradaException;
 import org.delarosa.app.modules.clinico.exceptions.FechaFueraRangoException;
-import org.delarosa.app.modules.clinico.dtos.CitaResponse;
-import org.delarosa.app.modules.clinico.dtos.CrearCitaRequest;
 import org.delarosa.app.modules.clinico.entities.Cita;
 import org.delarosa.app.modules.clinico.exceptions.CitaPendienteException;
 import org.delarosa.app.modules.clinico.repositories.CitaRepository;
@@ -32,6 +29,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class CitaServiceImp implements CitaService {
         validarDisponibilidadDoctor(doctor, crearCitaRequest.fechaCita());
 
         Cita nuevaCita = crearEntidadCita(crearCitaRequest, doctor, paciente);
-        nuevaCita.asignarOrdenPago( pagoService.crearOrdenPago(nuevaCita,obtenerMontoDeCita(nuevaCita)));
+        nuevaCita.asignarOrdenPago(pagoService.crearOrdenPago(nuevaCita, obtenerMontoDeCita(nuevaCita)));
         Cita citaGuardada = citaRepository.save(nuevaCita);
 
         return mapToResponseDTO(citaGuardada);
@@ -73,7 +72,7 @@ public class CitaServiceImp implements CitaService {
 
     @Override
     public Cita obtenerById(Integer id) {
-        return citaRepository.findById(id).orElseThrow(()-> new CitaNoEncontradaException("Cita no encontrada"));
+        return citaRepository.findById(id).orElseThrow(() -> new CitaNoEncontradaException("Cita no encontrada"));
     }
 
     // --- Obtener horas disponibles para un doctor ---
@@ -140,7 +139,7 @@ public class CitaServiceImp implements CitaService {
 
     @Override
     @Transactional(readOnly = true)
-        public List<CitaResponse> obtenerCitasDoctor(Integer idDoctor) {
+    public List<CitaResponse> obtenerCitasDoctor(Integer idDoctor) {
         List<CitaResponse> pendientes = obtenerCitasPendientes(idDoctor);
         List<CitaResponse> atendidas = obtenerCitasAtendidas(idDoctor);
 
@@ -161,7 +160,7 @@ public class CitaServiceImp implements CitaService {
             throw new IllegalStateException("Error: Esta cita ya fue atendida y tiene una receta generada.");
         }
 
-        if (cita.getEstatus() == EstatusCita.CANCELADA_DOCTOR ||  cita.getEstatus() == EstatusCita.CANCELADA_FALTA_DE_PAGO || cita.getEstatus() ==  EstatusCita.CANCELADA_PACIENTE ) {
+        if (cita.getEstatus() == EstatusCita.CANCELADA_DOCTOR || cita.getEstatus() == EstatusCita.CANCELADA_FALTA_DE_PAGO || cita.getEstatus() == EstatusCita.CANCELADA_PACIENTE) {
             throw new IllegalStateException("Error: No se puede generar receta de una cita cancelada.");
         }
 
@@ -201,6 +200,101 @@ public class CitaServiceImp implements CitaService {
         recetaRepo.save(receta);
         return receta.getFolioReceta();
     }
+
+    // Devolver todas las recetas emitidas por un doctor
+
+    @Override
+    @Transactional(readOnly = true) // Es solo lectura, optimiza rendimiento
+    public List<RecetaPDF> obtenerRecetasPorDoctor(Integer idDoctor) {
+
+        List<Receta> recetas = recetaRepo.findByCitaDoctorIdDoctor(idDoctor);
+
+        return recetas.stream().map(receta -> {
+
+            RecetaRequest recetaRequest = new RecetaRequest(
+                    receta.getCita().getFolioCita(),
+                    receta.getDiagnostico(),
+                    receta.getObservaciones(),
+                    receta.getMedicamentos().stream()
+                            .map(m -> new MedicamentosRecetaRequest(m.getNombre(), m.getTratamiento(), m.getCantidad()))
+                            .toList()
+            );
+
+            LocalDate fechaReceta = receta.getCita().getFechaCita().toLocalDate();
+
+            // C) Retornamos el objeto final
+            return new RecetaPDF(
+                    receta.getFolioReceta(), // Agregué el folio de la receta al constructor si lo tienes
+                    personaService.obtenerNombreCompletoPersona(receta.getCita().getPaciente().getPersona()),
+                    personaService.obtenerNombreCompletoPersona(receta.getCita().getDoctor().getEmpleado().getPersona()),
+                    fechaReceta.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), // Fecha formateada
+                    recetaRequest
+            );
+        }).toList();
+    }
+
+    //Cambiar estado a no acudio el paciente
+
+    @Override
+    public String marcarPacienteNoAcudio(Integer idCita) {
+        // 1. BUSCAR: Traemos la cita de la base de datos (sin querys raras)
+        Cita cita = citaRepository.findById(idCita)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+
+        LocalDateTime horaLimite = cita.getFechaCita().plusMinutes(75);
+
+        LocalDateTime ahora = LocalDateTime.now();
+
+        if (ahora.isAfter(horaLimite)) {
+            cita.setEstatus(EstatusCita.NO_ACUDIO);
+
+            citaRepository.save(cita);
+            return "La cita se marcó como NO ACUDIÓ exitosamente.";
+        } else {
+            return "Error: Aún no han pasado 75 minutos desde la hora de la cita.";
+        }
+    }
+
+    //Cancelar Cita
+
+    @Override
+    @Transactional
+    public Integer cancelarCitaPorPaciente(Integer idCita, Integer idPaciente) {
+        Cita cita = citaRepository.findById(idCita)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+        System.out.println(cita.getFolioCita());
+        System.out.println(cita.getPaciente().getIdPaciente());
+        System.out.println(idPaciente);
+        if (!cita.getPaciente().getIdPaciente().equals(idPaciente)) {
+            throw new RuntimeException("No es tu cita, no la puedes cancelar.");
+        }
+
+        if (cita.getEstatus().equals(EstatusCita.CANCELADA_PACIENTE) ||
+                cita.getEstatus().equals(EstatusCita.ATENDIDA)) {
+            return 0;
+        }
+        System.out.println(idPaciente);
+        long horasRestantes = ChronoUnit.HOURS.between(LocalDateTime.now(), cita.getFechaCita());
+
+        BigDecimal porcentaje;
+
+        if (horasRestantes >= 24) {
+            porcentaje = new BigDecimal("1.0");
+        } else if (horasRestantes > 0) {
+            porcentaje = new BigDecimal("0.5");
+        } else {
+            porcentaje = BigDecimal.ZERO;
+        }
+
+        BigDecimal montoReembolso = cita.getDoctor().getEspecialidad().getCosto().multiply(porcentaje);
+
+        cita.setEstatus(EstatusCita.CANCELADA_PACIENTE);
+        citaRepository.save(cita);
+
+        return montoReembolso.intValue();
+    }
+
 
     // --- Metodos de apoyo ---
 

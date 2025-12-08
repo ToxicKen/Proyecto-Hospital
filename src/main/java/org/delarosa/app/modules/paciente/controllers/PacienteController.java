@@ -98,6 +98,20 @@ public class PacienteController {
     }
 
 
+    @PutMapping("/cancelar/{idCita}")
+    public ResponseEntity<Integer> cancelarCita(@PathVariable Integer idCita,
+                                                Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            Integer idPaciente = pacienteService.obtenerPacienteByCorreo(email).getIdPaciente();
+            Integer dineroDevuelto = citaService.cancelarCitaPorPaciente(idCita, idPaciente);
+            return ResponseEntity.ok(dineroDevuelto);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(-1);
+        }
+    }
+
 
 
 }

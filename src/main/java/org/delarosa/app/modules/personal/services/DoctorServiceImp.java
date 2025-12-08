@@ -139,6 +139,27 @@ public class DoctorServiceImp implements DoctorService {
         return doctorRepo.buscarPorEmailDeUsuario(correo).orElseThrow(()->new DoctorNoEncontradoException("Doctor no encontrado"));
     }
 
+    //Dar de baja un doctor
+    @Override
+    public void darDeBajaDoctor(Integer idDoctor) {
+        try {
+            // Llamamos al Stored Procedure
+            doctorRepo.darDeBajaDoctor(idDoctor);
+
+        } catch (Exception e) {
+            String mensajeError = e.getMessage();
+
+            if (e.getCause() != null) {
+                mensajeError += " " + e.getCause().getMessage();
+            }
+
+            if (mensajeError.contains("El doctor tiene citas pendientes")) {
+                throw new IllegalStateException("No se puede dar de baja: El doctor tiene citas pendientes o pagos sin procesar.");
+            }
+
+            throw new RuntimeException("Error interno al procesar la baja del doctor.");
+        }
+    }
 
     // --- Metodos de apoyo ---
 

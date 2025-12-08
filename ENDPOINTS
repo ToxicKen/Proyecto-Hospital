@@ -380,6 +380,11 @@ Devuelve el siguiente JSON:
 }
 ]
 
+Cancelar Cita
+
+Enddpoint /api/paciente/cancelar/folioCita
+
+devuevel un integer con el dinero devuelto
 
 DOCTOR
 
@@ -590,6 +595,50 @@ Obtener PDF de la receta
 ENDPOINT: /api/cita/doctor/receta/{id}/pdf
 
 Recibe el token y el párametro de la receta  /api/cita/doctor/receta/1/pdf
+
+Devuelve la receta en PDF
+const imprimirReceta = async (idReceta) => {
+    try {
+        // 1. Haces la petición (Asegúrate de enviar el Token si usas seguridad)
+        const token = localStorage.getItem('token'); // O donde guardes tu token
+
+        const response = await fetch(`http://localhost:8080/doctor/receta/${idReceta}/pdf`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`, // ¡Importante!
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al descargar la receta');
+        }
+
+        // 2. AQUÍ ESTÁ EL TRUCO: Conviertes la respuesta a "Blob" (Archivo binario)
+        const blob = await response.blob();
+
+        // 3. Creas una URL temporal en el navegador para ese archivo
+        const url = window.URL.createObjectURL(blob);
+
+        // 4. Abres esa URL en una nueva pestaña (el navegador mostrará el PDF)
+        window.open(url, '_blank');
+
+        // (Opcional) Limpiar la URL después de un rato para liberar memoria
+        setTimeout(() => window.URL.revokeObjectURL(url), 100);
+
+    } catch (error) {
+        console.error("Error imprimiendo:", error);
+        alert("No se pudo generar el PDF");
+    }
+};
+XD
+
+Paciente no acudio  a cita
+
+ENDPOINT: /api/cita/cita/marcarAusencia/{folioCita}
+
+Recibe el folioCita /marcarAusencia/{folioCita}
+
+Devuelve string
 
 
 

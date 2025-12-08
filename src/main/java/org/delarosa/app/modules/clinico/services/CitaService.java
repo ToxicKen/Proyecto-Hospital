@@ -1,10 +1,7 @@
 package org.delarosa.app.modules.clinico.services;
 
 
-import org.delarosa.app.modules.clinico.dtos.CitaResponse;
-import org.delarosa.app.modules.clinico.dtos.CrearCitaRequest;
-import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
-import org.delarosa.app.modules.clinico.dtos.RecetaRequest;
+import org.delarosa.app.modules.clinico.dtos.*;
 import org.delarosa.app.modules.clinico.entities.Cita;
 import org.delarosa.app.modules.clinico.enums.EstatusCita;
 import org.delarosa.app.modules.paciente.entities.Paciente;
@@ -34,6 +31,10 @@ public interface CitaService {
 
     Integer CrearReceta(RecetaRequest recetaRequest);
 
+    List<RecetaPDF> obtenerRecetasPorDoctor(Integer idDoctor);
 
+    String marcarPacienteNoAcudio(Integer folioCita);
+
+     Integer cancelarCitaPorPaciente(Integer idCita,Integer idPaciente);
 
 }

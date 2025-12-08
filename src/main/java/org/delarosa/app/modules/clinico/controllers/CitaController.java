@@ -126,7 +126,7 @@ public class CitaController {
                         .toList()
         );
 
-        RecetaPDF recetaPdf = new RecetaPDF(
+        RecetaPDF recetaPdf = new RecetaPDF(receta.getFolioReceta(),
                 personaService.obtenerNombreCompletoPersona(receta.getCita().getPaciente().getPersona()),
                 personaService.obtenerNombreCompletoPersona(receta.getCita().getDoctor().getEmpleado().getPersona()),
                 LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
