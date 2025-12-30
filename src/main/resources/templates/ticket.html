@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Ticket de Venta</title>
+
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            color: #333;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px dashed #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            margin: 2px 0;
+            font-size: 11px;
+        }
+
+        .info {
+            margin-bottom: 15px;
+        }
+
+        .info p {
+            margin: 3px 0;
+        }
+
+        .section-title {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            border-bottom: 1px dashed #999;
+            padding-bottom: 3px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: left;
+        }
+
+        th {
+            border-bottom: 1px solid #333;
+            font-size: 10px;
+        }
+
+        td {
+            border-bottom: 1px dashed #ddd;
+            font-size: 10px;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .totals {
+            margin-top: 15px;
+            border-top: 2px solid #333;
+            padding-top: 10px;
+        }
+
+        .totals table td {
+            border: none;
+            padding: 3px 0;
+            font-size: 11px;
+        }
+
+        .total-final {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 10px;
+            border-top: 1px dashed #999;
+            padding-top: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ENCABEZADO -->
+<div class="header">
+    <h1>FARMACIA DEL SISTEMA</h1>
+    <p>RFC: XAXX010101000</p>
+    <p>Av. Principal #123 · Tel. 555-123-4567</p>
+</div>
+
+<!-- INFO DEL TICKET -->
+<div class="info">
+    <p><strong>Ticket:</strong> <span th:text="${ticket.idTicket}"></span></p>
+    <p><strong>Fecha:</strong> <span th:text="${ticket.fechaVenta}"></span></p>
+    <p><strong>Estatus:</strong> <span th:text="${ticket.estatus}"></span></p>
+</div>
+
+<!-- MEDICAMENTOS -->
+<div th:if="${ticket.medicamentos.size() > 0}">
+    <div class="section-title">Medicamentos</div>
+
+    <table>
+        <thead>
+        <tr>
+            <th style="width: 40%">Producto</th>
+            <th style="width: 15%" class="text-right">Cant.</th>
+            <th style="width: 20%" class="text-right">Precio</th>
+            <th style="width: 25%" class="text-right">Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="m : ${ticket.medicamentos}">
+            <td th:text="${m.nombre}"></td>
+            <td class="text-right" th:text="${m.cantidad}"></td>
+            <td class="text-right" th:text="${m.precioUnitario}"></td>
+            <td class="text-right" th:text="${m.subtotal}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- SERVICIOS -->
+<div th:if="${ticket.servicios.size() > 0}">
+    <div class="section-title">Servicios</div>
+
+    <table>
+        <thead>
+        <tr>
+            <th style="width: 40%">Servicio</th>
+            <th style="width: 15%" class="text-right">Cant.</th>
+            <th style="width: 20%" class="text-right">Precio</th>
+            <th style="width: 25%" class="text-right">Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="s : ${ticket.servicios}">
+            <td th:text="${s.nombre}"></td>
+            <td class="text-right" th:text="${s.cantidad}"></td>
+            <td class="text-right" th:text="${s.precioUnitario}"></td>
+            <td class="text-right" th:text="${s.subtotal}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- TOTALES -->
+<div class="totals">
+    <table>
+        <tr>
+            <td>Total</td>
+            <td class="text-right total-final">
+                $<span th:text="${ticket.total}"></span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>Gracias por su compra</p>
+    <p>Este ticket es un comprobante de pago</p>
+    <p>Conserve este documento</p>
+</div>
+
+</body>
+</html>

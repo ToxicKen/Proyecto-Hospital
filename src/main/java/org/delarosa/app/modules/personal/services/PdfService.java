@@ -4,6 +4,7 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.clinico.dtos.RecetaPDF;
 import org.delarosa.app.modules.clinico.entities.Receta;
+import org.delarosa.app.modules.farmacia.dtos.TicketResponse;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -20,9 +21,18 @@ public class PdfService {
     public byte[] generarRecetaPdf(RecetaPDF recetaPdf) throws Exception {
         Context context = new Context();
         context.setVariable("receta", recetaPdf);
-
         String html = templateEngine.process("receta", context);
+        return renderPdf(html);
+    }
 
+    public byte[] generarTicketPdf(TicketResponse ticketPdf) throws Exception {
+        Context context = new Context();
+        context.setVariable("ticket", ticketPdf);
+        String html = templateEngine.process("ticket", context);
+        return renderPdf(html);
+    }
+
+    private byte[] renderPdf(String html) throws Exception {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.withHtmlContent(html, null);
@@ -31,4 +41,5 @@ public class PdfService {
             return baos.toByteArray();
         }
     }
+
 }
