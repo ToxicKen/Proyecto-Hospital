@@ -1,4 +1,10 @@
 package org.delarosa.app.modules.farmacia.dtos;
 
-public record DetalleServicioExtraResponse() {
+import java.math.BigDecimal;
+
+public record DetalleServicioExtraResponse(Integer idServicioExtra,
+                                           String nombre,
+                                           Integer cantidad,
+                                           BigDecimal precioUnitario,
+                                           BigDecimal subtotal) {
 }

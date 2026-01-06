@@ -79,7 +79,7 @@ public class CitaController {
     }
 
     //Registrar una cita
-    
+
     @PostMapping("/registrar")
     public ResponseEntity<CitaResponse> registrarCita(
             @Validated @RequestBody CrearCitaRequest citaDTO,
@@ -90,6 +90,7 @@ public class CitaController {
         CitaResponse nuevaCita = citaService.crearCita(citaDTO, paciente);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCita);
     }
+
 
     //Pagar una Cita
     @PostMapping("/paciente/orden/pagar")

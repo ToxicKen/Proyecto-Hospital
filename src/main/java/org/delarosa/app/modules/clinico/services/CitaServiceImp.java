@@ -82,7 +82,12 @@ public class CitaServiceImp implements CitaService {
         LocalDateTime inicio = dia.atStartOfDay();
         LocalDateTime fin = dia.atTime(23, 59);
         List<Cita> citas = citaRepository.findAllByDoctorIdDoctorAndFechaCitaBetween(idDoctor, inicio, fin);
-        List<LocalTime> rangoHorasDoctor = doctorService.obtenerHorasByDoctorYFecha(idDoctor, dia);
+        citas = citas.stream()
+                .filter(cita ->
+                        cita.getEstatus() == EstatusCita.AGENDADA_PENDIENTE_DE_PAGO ||
+                                cita.getEstatus() == EstatusCita.PAGADA_PENDIENTE_POR_ATENDER
+                )
+                .toList(); List<LocalTime> rangoHorasDoctor = doctorService.obtenerHorasByDoctorYFecha(idDoctor, dia);
 
         List<LocalTime> horasOcupadas = citas.stream()
                 .map(c -> c.getFechaCita().toLocalTime())

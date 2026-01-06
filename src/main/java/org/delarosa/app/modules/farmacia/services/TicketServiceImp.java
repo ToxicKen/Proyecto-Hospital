@@ -4,14 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.farmacia.dtos.*;
 import org.delarosa.app.modules.farmacia.entities.*;
 import org.delarosa.app.modules.farmacia.enums.EstatusTicket;
+import org.delarosa.app.modules.farmacia.repositories.MetodoPagoRepository;
 import org.delarosa.app.modules.farmacia.repositories.TicketRepository;
-import org.delarosa.app.modules.general.entities.MetodoPago;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +18,7 @@ public class TicketServiceImp implements TicketService {
     private final MedicamentoService medicamentoService;
     private final ServicioExtraService servicioExtraService;
     private final TicketRepository ticketRepo;
-    private final MetodoPago metodoPago;
+    private final MetodoPagoRepository metodoPagoRepo;
 
     @Override
     @Transactional
@@ -53,7 +52,7 @@ public class TicketServiceImp implements TicketService {
 
         PagoTicket pago = new PagoTicket();
         pago.setTicket(ticket);
-        pago.setMetodoPago();
+        pago.setMetodoPago(metodoPagoRepo.findById(dto.idMetodoPago()).orElseThrow(()-> new RuntimeException("Metodo pago no encontrado")));
 
     }
 

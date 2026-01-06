@@ -4,21 +4,31 @@ import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.clinico.dtos.CitaResponse;
 import org.delarosa.app.modules.clinico.enums.EstatusCita;
 import org.delarosa.app.modules.clinico.services.CitaService;
+import org.delarosa.app.modules.general.dtos.ActualizarPacienteRequest;
+import org.delarosa.app.modules.general.entities.Persona;
+import org.delarosa.app.modules.general.entities.Telefono;
 import org.delarosa.app.modules.paciente.dtos.AlergiaExistenteDTO;
 import org.delarosa.app.modules.paciente.dtos.PacienteResponse;
 import org.delarosa.app.modules.paciente.dtos.PadecimientoExistenteDTO;
 import org.delarosa.app.modules.paciente.dtos.RegistroPacienteRequest;
+import org.delarosa.app.modules.paciente.entities.Alergia;
+import org.delarosa.app.modules.paciente.entities.HistorialMedico;
+import org.delarosa.app.modules.paciente.entities.Paciente;
+import org.delarosa.app.modules.paciente.entities.Padecimiento;
 import org.delarosa.app.modules.paciente.services.PacienteService;
 import org.delarosa.app.modules.personal.services.DoctorService;
 import org.delarosa.app.modules.security.dto.AuthResponse;
+import org.delarosa.app.modules.security.entities.Usuario;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -112,6 +122,14 @@ public class PacienteController {
         }
     }
 
+    // En PacienteController.java - Añadir este endpoint
+    @PutMapping("/actualizar")
+    public ResponseEntity<PacienteResponse> actualizarPaciente(
+            @RequestBody ActualizarPacienteRequest request,
+            Authentication authentication) {
 
-
+        String email = authentication.getName();
+        PacienteResponse pacienteActualizado = pacienteService.actualizarPaciente(email, request);
+        return ResponseEntity.ok(pacienteActualizado);
+    }
 }

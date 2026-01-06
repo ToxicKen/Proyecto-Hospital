@@ -2,7 +2,14 @@ package org.delarosa.app.modules.paciente.services;
 
 import lombok.RequiredArgsConstructor;
 
+import org.delarosa.app.modules.general.dtos.ActualizarPacienteRequest;
+import org.delarosa.app.modules.general.dtos.PadecimientoRequest;
+import org.delarosa.app.modules.general.dtos.TelefonoDTO;
+import org.delarosa.app.modules.general.entities.Persona;
+import org.delarosa.app.modules.general.entities.PersonaTelefono;
+import org.delarosa.app.modules.general.entities.Telefono;
 import org.delarosa.app.modules.general.services.PersonaService;
+import org.delarosa.app.modules.general.services.TelefonoService;
 import org.delarosa.app.modules.paciente.dtos.*;
 import org.delarosa.app.modules.paciente.entities.*;
 import org.delarosa.app.modules.paciente.enums.TipoSangre;
@@ -20,7 +27,9 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +41,7 @@ public class PacienteServiceImp implements PacienteService {
     private final PacienteRepository pacienteRepo;
     private final AlergiaRepository alergiaRepo;
     private final PadecimentoRepository padecimientoRepo;
+    private final TelefonoService telefonoService;
 
     // --- RegistrarPaciente ---
 
@@ -108,6 +118,172 @@ public class PacienteServiceImp implements PacienteService {
     public List<AlergiaExistenteDTO> obtenerAlergiasExistentes() {
         return alergiaRepo.findAll().stream().map(a->new AlergiaExistenteDTO(a.getIdAlergia(),a.getNombre())).toList();
     }
+
+
+    @Override
+    @Transactional
+    public PacienteResponse actualizarPaciente(String correo, ActualizarPacienteRequest request) {
+        Paciente paciente = obtenerPacienteByCorreo(correo);
+
+        if (paciente.getPersona() == null) {
+            throw new RuntimeException("El paciente no tiene información personal asociada");
+        }
+
+        if (paciente.getPersona().getUsuario() == null) {
+            throw new RuntimeException("El paciente no tiene usuario asociado");
+        }
+
+        // Actualizar datos de persona
+        actualizarDatosPersona(paciente.getPersona(), request);
+
+        // Actualizar email de usuario
+        paciente.getPersona().getUsuario().setCorreoElectronico(request.email());
+
+        // Actualizar historial médico
+        actualizarHistorialMedico(paciente, request);
+
+        // Actualizar alergias
+        actualizarAlergias(paciente, request.alergias());
+
+        // Actualizar padecimientos
+        actualizarPadecimientos(paciente, request.padecimientos());
+
+        paciente = pacienteRepo.save(paciente);
+        return mapearPaciente(paciente);
+    }
+
+    private void actualizarDatosPersona(Persona persona, ActualizarPacienteRequest request) {
+        persona.setNombre(request.nombre());
+        persona.setApellidoP(request.apellidoP());
+        persona.setApellidoM(request.apellidoM());
+        persona.setCurp(request.curp());
+
+        // Actualizar dirección (campos separados)
+        persona.setCalle(request.calle() != null ? request.calle() : "");
+        persona.setColonia(request.colonia() != null ? request.colonia() : "");
+        persona.setNumero(request.numero() != null ? request.numero() : "");
+
+        // Actualizar teléfonos (a través de PersonaTelefono)
+        actualizarTelefonos(persona, request.telefonos());
+    }
+
+    private void actualizarTelefonos(Persona persona, List<TelefonoDTO> telefonosDto) {
+        // Limpiar relaciones existentes
+        persona.getTelefonos().clear();
+
+        if (telefonosDto != null && !telefonosDto.isEmpty()) {
+            int i = 1;
+            for (TelefonoDTO telDto : telefonosDto) {
+                if (telDto.numero() != null && !telDto.numero().trim().isEmpty()) {
+                    // Crear o buscar teléfono
+                    Telefono telefono = telefonoService.buscarOCrearTelefono(telDto.numero());
+
+                    // Crear relación PersonaTelefono
+                    PersonaTelefono personaTelefono = PersonaTelefono.builder()
+                            .persona(persona)
+                            .telefono(telefono)
+                            .tipo(telDto.tipo() != null ? telDto.tipo() : "movil")
+                            .build();
+
+                    persona.addTelefono(personaTelefono);
+                }
+            }
+        }
+    }
+
+    private void actualizarHistorialMedico(Paciente paciente, ActualizarPacienteRequest request) {
+        HistorialMedico historial = paciente.getHistorialMedico();
+
+        if (historial == null) {
+            historial = new HistorialMedico();
+            historial.setPaciente(paciente); // ¡IMPORTANTE!
+            paciente.setHistorialMedico(historial);
+        }
+
+        historial.setPeso(request.peso());
+        historial.setEstatura(request.estatura());
+
+        if (request.tipoSangre() != null && !request.tipoSangre().isEmpty()) {
+            try {
+                historial.setTipoSangre(TipoSangre.valueOf(request.tipoSangre()));
+            } catch (IllegalArgumentException e) {
+                historial.setTipoSangre(null);
+            }
+        } else {
+            historial.setTipoSangre(null);
+        }
+    }
+
+    private void actualizarAlergias(Paciente paciente, List<String> alergiasNombres) {
+        paciente.getAlergias().clear();
+
+        if (alergiasNombres != null && !alergiasNombres.isEmpty()) {
+            for (String nombreAlergia : alergiasNombres) {
+                if (nombreAlergia != null && !nombreAlergia.trim().isEmpty()) {
+                    // Buscar alergia existente o crear nueva
+                    Alergia alergia = alergiaRepo.findByNombre(nombreAlergia.trim())
+                            .orElseGet(() -> {
+                                Alergia nueva = new Alergia();
+                                nueva.setNombre(nombreAlergia.trim());
+                                return alergiaRepo.save(nueva);
+                            });
+
+                    paciente.getAlergias().add(alergia);
+                }
+            }
+        }
+    }
+
+    private void actualizarPadecimientos(Paciente paciente, List<PadecimientoRequest> padecimientosReq) {
+        // Limpiar relaciones existentes
+        if (paciente.getPadecimientos() != null) {
+            paciente.getPadecimientos().clear();
+        }
+
+        if (padecimientosReq != null && !padecimientosReq.isEmpty()) {
+            for (PadecimientoRequest padecimientoReq : padecimientosReq) {
+                String nombre = padecimientoReq.nombre();
+                if (nombre != null && !nombre.trim().isEmpty()) {
+                    String nombreLimpio = nombre.trim();
+
+                    // Buscar padecimiento
+                    Optional<Padecimiento> padecimientoOpt = padecimientoRepo.findByNombre(nombreLimpio);
+                    Padecimiento padecimiento;
+
+                    if (padecimientoOpt.isPresent()) {
+                        padecimiento = padecimientoOpt.get();
+                    } else {
+                        // Crear nuevo padecimiento
+                        padecimiento = new Padecimiento();
+                        padecimiento.setNombre(nombreLimpio);
+                        padecimiento = padecimientoRepo.save(padecimiento);
+                    }
+
+                    // Crear ID compuesto
+                    PacientePadecimientoId id = new PacientePadecimientoId();
+                    id.setIdPaciente(paciente.getIdPaciente());
+                    id.setIdPadecimiento(padecimiento.getIdPadecimiento());
+
+                    // Crear relación
+                    PacientePadecimiento relacion = new PacientePadecimiento();
+                    relacion.setIdPadecimientoPaciente(id);
+                    relacion.setPaciente(paciente);
+                    relacion.setPadecimiento(padecimiento);
+
+                    String descripcion = padecimientoReq.descripcion();
+                    relacion.setDescripcion(descripcion != null ? descripcion.trim() : "");
+
+                    // Inicializar la lista si es null
+                    if (paciente.getPadecimientos() == null) {
+                        paciente.setPadecimientos(new ArrayList<>());
+                    }
+
+                    paciente.getPadecimientos().add(relacion);
+                }
+            }
+        }
+    }
+
 
 
     // --- Metodos de apoyo---
@@ -232,4 +408,9 @@ public class PacienteServiceImp implements PacienteService {
     private PadecimientoExistenteDTO mapearPadecimiento(Padecimiento padecimiento) {
         return new PadecimientoExistenteDTO(padecimiento.getIdPadecimiento(), padecimiento.getNombre());
     }
+
+
+
+
+
 }
