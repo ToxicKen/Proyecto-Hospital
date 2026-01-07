@@ -3,9 +3,12 @@ package org.delarosa.app.modules.farmacia.services;
 
 import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.farmacia.dtos.MedicamentoRegistroRequest;
+import org.delarosa.app.modules.farmacia.dtos.MedicamentoResponse;
 import org.delarosa.app.modules.farmacia.entities.Medicamento;
 import org.delarosa.app.modules.farmacia.repositories.MedicamentoRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -69,5 +72,13 @@ public class MedicamentoServiceImp implements MedicamentoService {
         }
     }
 
+    @Override
+    public List<MedicamentoResponse> consultarMedicamentos() {
+        return medicamentoRepo.findAll().stream().map(this::mapearAResponse).toList();
+    }
+
+    private MedicamentoResponse mapearAResponse(Medicamento medicamento) {
+        return new MedicamentoResponse(medicamento.getIdMedicamento(), medicamento.getNombre(), medicamento.getPrecio(), medicamento.getStock());
+    }
 
 }
