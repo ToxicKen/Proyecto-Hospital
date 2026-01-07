@@ -24,4 +24,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Integer> {
     @Query(value = "{call SP_DarDeBajaDoctor(:idDoctor)}", nativeQuery = true)
     void darDeBajaDoctor(@Param("idDoctor") Integer idDoctor);
 
+    Optional<Doctor> findByEmpleadoPersonaNombre(String nombre);
+
 }

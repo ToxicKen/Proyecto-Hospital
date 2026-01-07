@@ -22,4 +22,14 @@ public class ServicioExtra {
     @Column(precision = 10, scale = 2)
     private BigDecimal costo;
 
+    @Column(length = 100)
+    private String descripcion;
+
+    @Column(nullable = false)
+    private Boolean activo;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.activo == null)  this.activo = true;
+    }
 }

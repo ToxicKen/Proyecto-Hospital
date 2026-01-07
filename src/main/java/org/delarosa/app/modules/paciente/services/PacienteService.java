@@ -1,10 +1,8 @@
 package org.delarosa.app.modules.paciente.services;
 
-import org.delarosa.app.modules.general.dtos.ActualizarPacienteRequest;
+import org.delarosa.app.modules.paciente.dtos.ActualizarPacienteRequest;
 import org.delarosa.app.modules.paciente.dtos.*;
-import org.delarosa.app.modules.paciente.entities.Alergia;
 import org.delarosa.app.modules.paciente.entities.Paciente;
-import org.delarosa.app.modules.paciente.entities.Padecimiento;
 import org.delarosa.app.modules.security.dto.AuthResponse;
 
 import java.util.List;

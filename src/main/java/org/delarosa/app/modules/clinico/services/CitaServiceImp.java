@@ -133,9 +133,10 @@ public class CitaServiceImp implements CitaService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CitaResponse> obtenerCitasPacientePorDoctor(Integer idPaciente, Integer idDoctor) {
+    public List<CitaResponse> obtenerCitasPacientePorDoctor(Integer idPaciente, String nombre) {
+        Doctor doctor = doctorService.obtenerDoctorByNombre(nombre);
         List<Object[]> resultados = citaRepository.filtrarCitas(
-                null, null, null, null, idPaciente, idDoctor
+                null, null, null, null, idPaciente, doctor.getIdDoctor()
         );
         return resultados.stream().map(this::mapearCitaFiltrada).toList();
     }

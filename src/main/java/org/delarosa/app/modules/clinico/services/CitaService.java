@@ -23,7 +23,7 @@ public interface CitaService {
 
     List<CitaResponse> obtenerCitasPacientePorFechas(Integer idPaciente, LocalDate fechaInicio, LocalDate fechaFin);
 
-    List<CitaResponse> obtenerCitasPacientePorDoctor(Integer idPaciente, Integer idDoctor);
+    List<CitaResponse> obtenerCitasPacientePorDoctor(Integer idPaciente, String nombre);
 
     List<CitaResponse> obtenerCitasPaciente(Integer idPaciente);
 
@@ -35,6 +35,8 @@ public interface CitaService {
 
     String marcarPacienteNoAcudio(Integer folioCita);
 
-     Integer cancelarCitaPorPaciente(Integer idCita,Integer idPaciente);
+    Integer cancelarCitaPorPaciente(Integer idCita,Integer idPaciente);
+
+
 
 }

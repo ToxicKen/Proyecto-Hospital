@@ -1,4 +1,6 @@
-package org.delarosa.app.modules.general.dtos;
+package org.delarosa.app.modules.paciente.dtos;
+
+import org.delarosa.app.modules.general.dtos.TelefonoDTO;
 
 import java.util.List;
 
@@ -14,6 +16,7 @@ public record ActualizarPacienteRequest(String nombre,
                                         Double peso,
                                         Double estatura,
                                         String tipoSangre,
-                                        List<String> alergias,
-                                        List<PadecimientoRequest> padecimientos) {
+                                        List<String> nuevasAlergias,
+                                        List<Integer> idAlergias,
+                                        List<PadecimientoDTO> padecimientos) {
 }

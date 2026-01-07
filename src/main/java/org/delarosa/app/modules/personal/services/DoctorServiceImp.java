@@ -161,6 +161,11 @@ public class DoctorServiceImp implements DoctorService {
         }
     }
 
+    @Override
+    public Doctor obtenerDoctorByNombre(String nombre) {
+        return doctorRepo.findByEmpleadoPersonaNombre(nombre).orElseThrow(()-> new RuntimeException("Doctor no encontrado"));
+    }
+
     // --- Metodos de apoyo ---
 
     private void asignarRolDoctor(Usuario usuarioCreado) {

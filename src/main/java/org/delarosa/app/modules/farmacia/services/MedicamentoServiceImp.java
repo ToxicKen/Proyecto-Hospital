@@ -2,11 +2,16 @@ package org.delarosa.app.modules.farmacia.services;
 
 
 import lombok.RequiredArgsConstructor;
+import org.delarosa.app.modules.farmacia.dtos.MedicamentoEditRequest;
 import org.delarosa.app.modules.farmacia.dtos.MedicamentoRegistroRequest;
 import org.delarosa.app.modules.farmacia.dtos.MedicamentoResponse;
 import org.delarosa.app.modules.farmacia.entities.Medicamento;
+import org.delarosa.app.modules.farmacia.entities.MovimientoStock;
+import org.delarosa.app.modules.farmacia.enums.TipoMovimiento;
 import org.delarosa.app.modules.farmacia.repositories.MedicamentoRepository;
+import org.delarosa.app.modules.farmacia.repositories.MovimientoStockRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,59 +21,109 @@ import java.util.List;
 public class MedicamentoServiceImp implements MedicamentoService {
 
     private final MedicamentoRepository medicamentoRepo;
+    private final MovimientoStockRepository movimientoStockRepo;
 
+    @Transactional
     @Override
     public void agregarStock(Integer id, Integer cantidad) {
-        Medicamento medicamento = obtenerMedicamentoPorId(id);
 
         if (cantidad <= 0) {
-            throw new RuntimeException("La cantidad debe ser mayor a cero");
+            throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
         }
 
-        medicamento.setStock(medicamento.getStock() + cantidad);
+        Medicamento medicamento = obtenerMedicamentoPorId(id);
 
-        medicamentoRepo.save(medicamento);
+        int stockAnterior = medicamento.getStock();
+        int stockFinal = stockAnterior + cantidad;
+
+        medicamento.setStock(stockFinal);
+
+        movimientoStockRepo.save(
+                MovimientoStock.builder()
+                        .medicamento(medicamento)
+                        .cantidad(cantidad)
+                        .tipo(TipoMovimiento.ENTRADA)
+                        .stockAnterior(stockAnterior)
+                        .stockFinal(stockFinal)
+                        .motivo("Entrada de stock")
+                        .build()
+        );
     }
 
+
+    @Transactional
     @Override
     public void descontarStock(Integer id, Integer cantidad) {
-        Medicamento medicamento = obtenerMedicamentoPorId(id);
+
         if (cantidad <= 0) {
-            throw new RuntimeException("La cantidad debe ser mayor a cero");
+            throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
         }
-        verificarStockParaVenta(medicamento.getStock(), cantidad);
-        medicamento.setStock(medicamento.getStock() - cantidad);
-        medicamentoRepo.save(medicamento);
+
+        Medicamento medicamento = obtenerMedicamentoPorId(id);
+
+        verificarStockSuficiente(medicamento, cantidad);
+
+        int stockAnterior = medicamento.getStock();
+        int stockFinal = stockAnterior - cantidad;
+
+        medicamento.setStock(stockFinal);
+
+        movimientoStockRepo.save(
+                MovimientoStock.builder()
+                        .medicamento(medicamento)
+                        .cantidad(-cantidad)
+                        .tipo(TipoMovimiento.SALIDA)
+                        .stockAnterior(stockAnterior)
+                        .stockFinal(stockFinal)
+                        .motivo("Salida de stock")
+                        .build()
+        );
     }
 
+    @Transactional
     @Override
-    public void crearMedicamento(MedicamentoRegistroRequest dto) {
+    public MedicamentoResponse crearMedicamento(MedicamentoRegistroRequest dto) {
 
         if (medicamentoRepo.findByNombre(dto.nombre()).isPresent()) {
-            throw new RuntimeException("Ya existe el medicamento");
+            throw new IllegalArgumentException("Ya existe el medicamento");
         }
 
         Medicamento medicamento = Medicamento.builder()
                 .nombre(dto.nombre())
                 .stock(dto.cantidad())
                 .precio(dto.precio())
+                .descripcion(dto.descripcion())
                 .build();
 
-        medicamentoRepo.save(medicamento);
+        Medicamento guardado = medicamentoRepo.save(medicamento);
+
+        movimientoStockRepo.save(
+                MovimientoStock.builder()
+                        .medicamento(guardado)
+                        .cantidad(dto.cantidad())
+                        .tipo(TipoMovimiento.ENTRADA)
+                        .stockAnterior(0)
+                        .stockFinal(dto.cantidad())
+                        .motivo("Stock inicial")
+                        .build()
+        );
+
+        return mapearAResponse(guardado);
     }
 
     @Override
-    public Medicamento obtenerMedicamentoPorId(Integer idMedicamento) {
+    public MedicamentoResponse obtenerMedicamentoById(Integer id) {
+        return mapearAResponse(obtenerMedicamentoPorId(id));
+    }
+
+    private Medicamento obtenerMedicamentoPorId(Integer idMedicamento) {
         return medicamentoRepo.findById(idMedicamento)
                 .orElseThrow(() -> new RuntimeException("Medicamento no encontrado"));
     }
 
-    @Override
-    public void verificarStockParaVenta(Integer idMedicamento, Integer cantidad) {
-        Medicamento medicamento = obtenerMedicamentoPorId(idMedicamento);
-
+    private void verificarStockSuficiente(Medicamento medicamento, int cantidad) {
         if (medicamento.getStock() < cantidad) {
-            throw new RuntimeException("Stock insuficiente");
+            throw new IllegalStateException("Stock insuficiente");
         }
     }
 
@@ -77,8 +132,27 @@ public class MedicamentoServiceImp implements MedicamentoService {
         return medicamentoRepo.findAll().stream().map(this::mapearAResponse).toList();
     }
 
+    @Override
+    public List<MedicamentoResponse> buscarPorNombre(String nombre) {
+        return medicamentoRepo.findByNombreContainingIgnoreCase(nombre).stream().map(this::mapearAResponse).toList();
+    }
+
+    @Override
+    public void editarMedicamento(Integer id, MedicamentoEditRequest dto) {
+        Medicamento medicamento = obtenerMedicamentoPorId(id);
+        medicamento.setNombre(dto.nombre());
+        medicamento.setDescripcion(dto.descripcion());
+        medicamento.setPrecio(dto.precio());
+        medicamentoRepo.save(medicamento);
+    }
+
+    @Override
+    public void eliminarMedicamento(Integer id) {
+
+    }
+
     private MedicamentoResponse mapearAResponse(Medicamento medicamento) {
-        return new MedicamentoResponse(medicamento.getIdMedicamento(), medicamento.getNombre(), medicamento.getPrecio(), medicamento.getStock());
+        return new MedicamentoResponse(medicamento.getIdMedicamento(), medicamento.getNombre(), medicamento.getDescripcion(), medicamento.getPrecio(), medicamento.getStock());
     }
 
 }

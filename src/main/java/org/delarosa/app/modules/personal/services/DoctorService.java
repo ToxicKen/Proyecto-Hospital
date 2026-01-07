@@ -33,4 +33,8 @@ public interface DoctorService {
 
     void darDeBajaDoctor(Integer idDoctor);
 
+    Doctor obtenerDoctorByNombre(String nombre);
+
+
+
 }

@@ -28,8 +28,6 @@ public class RecepcionistaController {
         return ResponseEntity.ok(recepcionistaService.registrarRecepcionista(registroEmpleadoRequest));
     }
 
-
-
     @PostMapping("/{idEmpleado}/horarios")
     @PreAuthorize("hasRole('RECEPCIONISTA')")
     public ResponseEntity<?> agregarHorario(
