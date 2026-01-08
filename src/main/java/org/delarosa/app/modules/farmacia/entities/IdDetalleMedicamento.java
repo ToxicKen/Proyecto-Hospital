@@ -4,18 +4,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
-@Embeddable
-@NoArgsConstructor
-@EqualsAndHashCode
-@AllArgsConstructor
-@Setter
-@Getter
-public class IdDetalleMedicamento {
+import java.io.Serializable;
 
-    @Column(name = "idTicket", nullable = false)
+@Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class IdDetalleMedicamento implements Serializable {
+
+    @Column(name = "idTicket")
     private Integer idTicket;
 
-    @Column(name = "idMedicamento", nullable = false)
+    @Column(name = "idMedicamento")
     private Integer idMedicamento;
-
 }
+

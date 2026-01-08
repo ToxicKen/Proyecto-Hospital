@@ -15,5 +15,6 @@ public interface ServicioExtraService {
     List<ServicioExtraResponse> consultarPorNombre(String nombre);
     ServicioExtraResponse editarServicio(Integer id, ServicioExtraEditRequest dto);
     void eliminarServicio(Integer id);
+    ServicioExtra obtenerServicioPorId(Integer id);
 
 }

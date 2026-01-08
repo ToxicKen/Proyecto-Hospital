@@ -17,11 +17,13 @@ public interface RecepcionistaService {
     ConsultorioResponse eliminarConsultorio(Integer idConsultorio);
     List<ConsultorioResponse> listarConsultorios();
 
-    List<EspecialidadResponse> listarEspecialidades(Integer idEspecialidad);
+    List<EspecialidadResponse> listarEspecialidades();
     EspecialidadResponse crearEspecialidad(EspecialidadRequest dto);
     EspecialidadResponse editarEspecialidad(Integer idEspecialidad,EspecialidadRequest dto);
     EspecialidadResponse eliminarEspecialidad(Integer idEspecialidad);
     EspecialidadResponse obtenerEspecialidad(Integer idEspecialidad);
+
+
 
 
 }

@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login", "/api/auth/registrar").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()  // Por si hay otras rutas de auth
                         .requestMatchers("/api/paciente/registrar/**").permitAll()
-
+                        .requestMatchers("/api/recepcionista/registro").permitAll()
                         .requestMatchers("/api/paciente/**").hasAuthority("ROLE_PACIENTE")
                         .requestMatchers("/api/doctor/registro").hasAuthority("ROLE_RECEPCIONISTA")
                         .requestMatchers("/api/doctor/**").hasAuthority("ROLE_DOCTOR")

@@ -1,6 +1,9 @@
 package org.delarosa.app.modules.general;
 
+import org.delarosa.app.modules.clinico.exceptions.CitaNoEncontradaException;
+import org.delarosa.app.modules.clinico.exceptions.CitaPendienteException;
 import org.delarosa.app.modules.clinico.exceptions.FechaFueraRangoException;
+import org.delarosa.app.modules.personal.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,19 +21,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Manejar FechaFueraRangoException con 400 Bad Request
-    @ExceptionHandler(FechaFueraRangoException.class)
-    public ResponseEntity<ErrorResponse> handleFechaFueraRangoException(
-            FechaFueraRangoException ex
-    ) {
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "VALIDATION_ERROR",
-                ex.getMessage(),
-                LocalDateTime.now()
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
+
 
     // Manejar otros errores de negocio también con 400
     @ExceptionHandler(IllegalArgumentException.class)
@@ -93,6 +84,154 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(DoctorConCitasPendientesException.class)
+    public ResponseEntity<ErrorResponse> handleDoctorConCitasPendientes(
+            DoctorConCitasPendientesException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "DOCTOR_CON_CITAS_PENDIENTES",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DoctorBajaException.class)
+    public ResponseEntity<ErrorResponse> handleDoctorBajaException(
+            DoctorBajaException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "ERROR_BAJA_DOCTOR",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    @ExceptionHandler(DoctorNoEncontradoException.class)
+    public ResponseEntity<ErrorResponse> handleDoctorNoEncontradoException(
+            DoctorNoEncontradoException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "DOCTOR_NO_ENCONTRADO",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CitaPendienteException.class)
+    public ResponseEntity<ErrorResponse> handleCitaPendienteException(
+            CitaPendienteException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "CITA_PENDIENTE",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(EspecialidadAsignadaException.class)
+    public ResponseEntity<ErrorResponse> handleEspecialidadAsignadaException(
+            EspecialidadAsignadaException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),   // 409
+                "ESPECIALIDAD_ASIGNADA",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+
+
+
+
+    @ExceptionHandler(ConsultorioAsignadoException.class)
+    public ResponseEntity<ErrorResponse> handleConsultorioAsignadoException(
+            ConsultorioAsignadoException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),          // 409
+                "CONSULTORIO_ASIGNADO",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+
+    @ExceptionHandler(CitaNoEncontradaException.class)
+    public ResponseEntity<ErrorResponse> handleCitaNoEncontradaException(
+            CitaNoEncontradaException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "CITA_NO_ENCONTRADA",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+
+    @ExceptionHandler(DoctorNoTrabajaEseDiaException.class)
+    public ResponseEntity<ErrorResponse> handleDoctorNoTrabajaEseDiaException(
+            DoctorNoTrabajaEseDiaException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "DOCTOR_NO_TRABAJA_ESE_DIA",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HorarioNoDisponibleException.class)
+    public ResponseEntity<ErrorResponse> handleHorarioNoDisponibleException(
+            HorarioNoDisponibleException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "HORARIO_NO_DISPONIBLE",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(FechaFueraRangoException.class)
+    public ResponseEntity<ErrorResponse> handleFechaFueraRangoException(
+            FechaFueraRangoException ex
+    ) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "FECHA_FUERA_DE_RANGO",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     // Clase para la respuesta de error

@@ -17,6 +17,6 @@ public interface MedicamentoService {
     List<MedicamentoResponse> buscarPorNombre(String nombre);
     void editarMedicamento(Integer id, MedicamentoEditRequest dto);
     void eliminarMedicamento(Integer id);
-
+    Medicamento obtenerMedicamentoPorId (Integer id);
 
 }

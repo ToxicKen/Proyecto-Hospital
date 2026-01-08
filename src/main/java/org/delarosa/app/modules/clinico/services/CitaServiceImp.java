@@ -372,24 +372,31 @@ public class CitaServiceImp implements CitaService {
     }
 
     private List<LocalTime> obtenerHorasLaborablesPorDia(Doctor doctor, DayOfWeek diaSemana) {
+
         HorarioEmpleado horario = doctor.getEmpleado()
                 .getHorarios()
                 .stream()
                 .filter(h -> h.getDiaSemana().getDay().equals(diaSemana))
                 .findFirst()
-                .orElseThrow(() -> new DoctorNoTrabajaEseDiaException("Día fuera del horario del doctor"));
+                .orElseThrow(() ->
+                        new DoctorNoTrabajaEseDiaException("Día fuera del horario del doctor"));
 
         List<LocalTime> slots = new ArrayList<>();
+
         LocalTime actual = horario.getHrsInicio();
-        while (actual.isBefore(horario.getHrsFin())) {
+        LocalTime limite = horario.getHrsFin().minusHours(1);
+
+        while (!actual.isAfter(limite)) {
             slots.add(actual);
             actual = actual.plusHours(1);
         }
+
         return slots;
     }
 
+
     private boolean existeCitaProgramadaEnEseHorarioParaDoctor(Doctor doctor, LocalDateTime fecha) {
-        return citaRepository.findByDoctorAndFechaSolicitud(doctor, fecha).isPresent();
+        return citaRepository.findByDoctorAndFechaCita(doctor, fecha).isPresent();
     }
 
     private BigDecimal obtenerMontoDeCita(Cita cita) {

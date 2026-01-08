@@ -30,5 +30,7 @@ public class Doctor {
     @JoinColumn(name = "idConsultorio", referencedColumnName = "idConsultorio",nullable = false)
     private Consultorio consultorio;
 
+
+
 }
 

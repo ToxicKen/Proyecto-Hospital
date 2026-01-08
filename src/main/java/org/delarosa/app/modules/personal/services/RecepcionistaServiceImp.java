@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.delarosa.app.modules.personal.dtos.*;
 import org.delarosa.app.modules.personal.entities.Consultorio;
 import org.delarosa.app.modules.personal.entities.Empleado;
+import org.delarosa.app.modules.personal.entities.Especialidad;
 import org.delarosa.app.modules.personal.entities.Recepcionista;
+import org.delarosa.app.modules.personal.exceptions.ConsultorioAsignadoException;
+import org.delarosa.app.modules.personal.exceptions.EspecialidadAsignadaException;
 import org.delarosa.app.modules.personal.repositories.ConsultorioRepository;
 import org.delarosa.app.modules.personal.repositories.EspecialidadRepository;
 import org.delarosa.app.modules.personal.repositories.RecepcionistaRepository;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +31,8 @@ public class RecepcionistaServiceImp implements RecepcionistaService {
     private final RecepcionistaRepository recepcionistaRepo;
     private final ConsultorioRepository consultorioRepo;
     private final EspecialidadRepository especialidadRepo;
+
+
 
 
     // --- Registro de Recepcionista ---
@@ -50,54 +56,110 @@ public class RecepcionistaServiceImp implements RecepcionistaService {
         return recepcionistaRepo.save(recepcionista);
     }
 
+
     @Override
     public ConsultorioResponse crearConsultorio(ConsultorioRequest dto) {
-        Consultorio consultorio = consultorioRepo.findByNombre()
+        if (consultorioRepo.findByNumero(dto.numeroConsultorio()).isPresent()) {
+            throw new IllegalStateException("El consultorio ya existe");
+        }
+
+        Consultorio consultorio = new Consultorio();
+        consultorio.setNumero(dto.numeroConsultorio());
+
+        return mapearConsultorioAResponse(consultorioRepo.save(consultorio));
     }
 
     @Override
     public ConsultorioResponse obtenerConsultorio(Integer idConsultorio) {
-        return null;
+        Consultorio consultorio = obtenerConsultorioPorId(idConsultorio);
+        return mapearConsultorioAResponse(consultorio);
     }
 
     @Override
     public ConsultorioResponse editarConsultorio(Integer idConsultorio, ConsultorioRequest dto) {
-        return null;
+        Consultorio consultorio = obtenerConsultorioPorId(idConsultorio);
+        consultorio.setNumero(dto.numeroConsultorio());
+        return mapearConsultorioAResponse(consultorioRepo.save(consultorio));
     }
 
+
     @Override
+    @Transactional
     public ConsultorioResponse eliminarConsultorio(Integer idConsultorio) {
-        return null;
+
+        // 1️⃣ Obtener consultorio (ya lo tienes)
+        Consultorio consultorio = obtenerConsultorioPorId(idConsultorio);
+
+        // 2️⃣ VALIDACIÓN DE NEGOCIO
+        if (consultorio.getDoctores() != null && !consultorio.getDoctores().isEmpty()) {
+            throw new ConsultorioAsignadoException(
+                    "No se puede eliminar el consultorio porque tiene doctores asignados"
+            );
+        }
+
+        // 3️⃣ Eliminar
+        consultorioRepo.delete(consultorio);
+
+        // 4️⃣ Respuesta (opcional, pero válido)
+        return mapearConsultorioAResponse(consultorio);
     }
 
     @Override
     public List<ConsultorioResponse> listarConsultorios() {
-        return List.of();
+        return consultorioRepo.findAll()
+                .stream()
+                .map(this::mapearConsultorioAResponse)
+                .toList();
     }
 
     @Override
-    public List<EspecialidadResponse> listarEspecialidades(Integer idEspecialidad) {
-        return List.of();
+    public List<EspecialidadResponse> listarEspecialidades() {
+        return especialidadRepo.findAll()
+                .stream()
+                .map(this::mapearEspecialidadAResponse)
+                .toList();
     }
 
     @Override
     public EspecialidadResponse crearEspecialidad(EspecialidadRequest dto) {
-        return null;
+        Especialidad especialidad = new Especialidad();
+        especialidad.setNombre(dto.nombre());
+        especialidad.setCosto(dto.costo());
+        return mapearEspecialidadAResponse(especialidadRepo.save(especialidad));
     }
 
     @Override
     public EspecialidadResponse editarEspecialidad(Integer idEspecialidad, EspecialidadRequest dto) {
-        return null;
+        Especialidad especialidad = obtenerEspecialidadPorId(idEspecialidad);
+        especialidad.setNombre(dto.nombre());
+        especialidad.setCosto(dto.costo());
+        return mapearEspecialidadAResponse(especialidadRepo.save(especialidad));
+    }
+    @Override
+    @Transactional
+    public EspecialidadResponse eliminarEspecialidad(Integer idEspecialidad) {
+
+        // 1️⃣ Obtener especialidad
+        Especialidad especialidad = obtenerEspecialidadPorId(idEspecialidad);
+
+        // 2️⃣ Validación de negocio
+        if (especialidad.getDoctores() != null && !especialidad.getDoctores().isEmpty()) {
+            throw new EspecialidadAsignadaException(
+                    "No se puede eliminar la especialidad porque tiene doctores asignados"
+            );
+        }
+
+        // 3️⃣ Eliminar
+        especialidadRepo.delete(especialidad);
+
+        // 4️⃣ Respuesta
+        return mapearEspecialidadAResponse(especialidad);
     }
 
-    @Override
-    public EspecialidadResponse eliminarEspecialidad(Integer idEspecialidad) {
-        return null;
-    }
 
     @Override
     public EspecialidadResponse obtenerEspecialidad(Integer idEspecialidad) {
-        return null;
+        return mapearEspecialidadAResponse(obtenerEspecialidadPorId(idEspecialidad));
     }
 
 
@@ -114,6 +176,25 @@ public class RecepcionistaServiceImp implements RecepcionistaService {
     }
 
 
+    private Consultorio obtenerConsultorioPorId(Integer id) {
+        return consultorioRepo.findById(id)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
+                        "Consultorio no encontrado"));
+    }
+
+    private Especialidad obtenerEspecialidadPorId(Integer id) {
+        return especialidadRepo.findById(id)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
+                        "Especialidad no encontrada"));
+    }
+
+    private ConsultorioResponse mapearConsultorioAResponse(Consultorio consultorio) {
+        return new ConsultorioResponse(consultorio.getIdConsultorio(),consultorio.getNumero());
+    }
+
+    private EspecialidadResponse mapearEspecialidadAResponse(Especialidad e) {
+        return new EspecialidadResponse(e.getIdEspecialidad(), e.getNombre(),e.getCosto());
+    }
 
 
 }

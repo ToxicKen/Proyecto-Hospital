@@ -50,11 +50,10 @@ public class Ticket {
         this.estatus = EstatusTicket.PENDIENTE;
     }
 
-    public void agregarMedicamento(DetalleMedicamento medicamento) {
-        this.medicamentos.add(medicamento);
-        medicamento.setTicket(this);
+    public void agregarMedicamento(DetalleMedicamento detalle) {
+        detalle.setTicket(this);
+        this.medicamentos.add(detalle);
     }
-
     public void agregarServicio(DetalleServicioExtra servicioExtra) {
         this.servicios.add(servicioExtra);
         servicioExtra.setTicket(this);

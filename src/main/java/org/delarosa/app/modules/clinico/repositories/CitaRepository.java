@@ -44,4 +44,5 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
             @Param("IdDoctor") Integer idDoctor
     );
 
+    Optional<Cita> findByDoctorAndFechaCita(Doctor doctor, LocalDateTime fechaCita);
 }

@@ -25,6 +25,17 @@ public class Empleado {
     private Persona persona;
 
     @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HorarioEmpleado> horarios ;
+    private List<HorarioEmpleado> horarios;
+
+    @Column(nullable = false)
+    private Boolean activo;
+
+
+    @PrePersist
+    public void prePersist() {
+        if (this.activo == null) {
+            this.activo = true;
+        }
+    }
 
 }

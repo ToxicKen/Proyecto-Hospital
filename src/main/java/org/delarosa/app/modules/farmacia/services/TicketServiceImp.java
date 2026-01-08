@@ -6,6 +6,9 @@ import org.delarosa.app.modules.farmacia.entities.*;
 import org.delarosa.app.modules.farmacia.enums.EstatusTicket;
 import org.delarosa.app.modules.farmacia.repositories.MetodoPagoRepository;
 import org.delarosa.app.modules.farmacia.repositories.TicketRepository;
+import org.delarosa.app.modules.personal.repositories.RecepcionistaRepository;
+import org.delarosa.app.modules.personal.services.PdfService;
+import org.delarosa.app.modules.personal.services.RecepcionistaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,9 @@ public class TicketServiceImp implements TicketService {
     private final ServicioExtraService servicioExtraService;
     private final TicketRepository ticketRepo;
     private final MetodoPagoRepository metodoPagoRepo;
+    private final RecepcionistaRepository recepcionistaRepo;
+    private final PdfService pdfService;
+
 
     @Override
     @Transactional
@@ -36,8 +42,17 @@ public class TicketServiceImp implements TicketService {
 
     @Override
     public byte[] obtenerPDFTicket(Integer idTicket) {
-        return new byte[0];
+        Ticket ticket = obtenerTicketById(idTicket);
+
+        TicketResponse response = mapearAResponseTicket(ticket);
+
+        try {
+            return pdfService.generarTicketPdf(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar PDF del ticket", e);
+        }
     }
+
 
     @Override
     @Transactional
@@ -58,33 +73,73 @@ public class TicketServiceImp implements TicketService {
 
     private Ticket createTicketEntity(TicketRequest dto) {
         Ticket ticket = new Ticket();
+        ticket.setRecepcionista(recepcionistaRepo.findById(dto.idEmpleado()).orElseThrow(()-> new RuntimeException("Recepcionista no encontrado")));
         agregarMedicamentosTicket(ticket, dto.medicamentos());
         agregarServiciosTicket(ticket, dto.servicios());
         guardarTotalTicket(ticket);
         return ticket;
     }
 
-    private void agregarMedicamentosTicket(Ticket ticket, List<MedicamentoTicketRequest> dto) {
+    private void agregarMedicamentosTicket(
+            Ticket ticket,
+            List<MedicamentoTicketRequest> dto
+    ) {
         for (MedicamentoTicketRequest m : dto) {
-            Medicamento medicamento = medicamentoService.obtenerMedicamentoPorId(m.idMedicamento());
+
+            Medicamento medicamento =
+                    medicamentoService.obtenerMedicamentoPorId(m.idMedicamento());
+
             DetalleMedicamento detalle = new DetalleMedicamento();
+
+            detalle.setTicket(ticket);
             detalle.setMedicamento(medicamento);
             detalle.setCantidad(m.cantidad());
             detalle.setPrecioUnitario(medicamento.getPrecio());
-            detalle.setSubtotal(medicamento.getPrecio().multiply(BigDecimal.valueOf(m.cantidad())));
+            detalle.setSubtotal(
+                    medicamento.getPrecio()
+                            .multiply(BigDecimal.valueOf(m.cantidad()))
+            );
+
+            // 🔥 AQUÍ ESTABA EL ERROR
+            detalle.setIdDetalleMedicamento(
+                    new IdDetalleMedicamento(
+                            null, // el idTicket se asigna después del persist
+                            medicamento.getIdMedicamento()
+                    )
+            );
+
             ticket.agregarMedicamento(detalle);
         }
-
     }
 
-    private void agregarServiciosTicket(Ticket ticket, List<ServicioTicketRequest> servicios) {
+    private void agregarServiciosTicket(
+            Ticket ticket,
+            List<ServicioTicketRequest> servicios
+    ) {
         for (ServicioTicketRequest s : servicios) {
-            ServicioExtra servicio = servicioExtraService.obtenerServicioById(s.idServicio());
+
+            ServicioExtra servicio =
+                    servicioExtraService.obtenerServicioPorId(s.idServicio());
+
             DetalleServicioExtra detalle = new DetalleServicioExtra();
+
+            detalle.setTicket(ticket);
             detalle.setServicioExtra(servicio);
             detalle.setCantidad(s.cantidad());
             detalle.setPrecioUnitario(servicio.getCosto());
-            detalle.setSubtotal(detalle.getPrecioUnitario().multiply(BigDecimal.valueOf(detalle.getCantidad())));
+            detalle.setSubtotal(
+                    servicio.getCosto()
+                            .multiply(BigDecimal.valueOf(s.cantidad()))
+            );
+
+            // 🔥 ESTO ERA LO QUE FALTABA
+            detalle.setIdDetalleServicioExtra(
+                    new IdDetalleServicioExtra(
+                            null, // idTicket se setea después del persist
+                            servicio.getIdServicioExtra()
+                    )
+            );
+
             ticket.agregarServicio(detalle);
         }
     }

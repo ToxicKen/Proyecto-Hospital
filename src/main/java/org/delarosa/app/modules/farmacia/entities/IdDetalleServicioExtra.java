@@ -2,15 +2,17 @@ package org.delarosa.app.modules.farmacia.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.Data;
+import lombok.*;
+
+import java.io.Serializable;
 
 @Embeddable
-@Data
-public class IdDetalleServicioExtra {
-    @Column(name = "idTicket", nullable = false)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor   // 🔥 ESTE ES EL QUE FALTABA
+public class IdDetalleServicioExtra implements Serializable {
+
     private Integer idTicket;
-
-    @Column(name = "idServicioExtra", nullable = false)
     private Integer idServicioExtra;
-
 }

@@ -116,7 +116,8 @@ public class MedicamentoServiceImp implements MedicamentoService {
         return mapearAResponse(obtenerMedicamentoPorId(id));
     }
 
-    private Medicamento obtenerMedicamentoPorId(Integer idMedicamento) {
+    @Override
+    public Medicamento obtenerMedicamentoPorId(Integer idMedicamento) {
         return medicamentoRepo.findById(idMedicamento)
                 .orElseThrow(() -> new RuntimeException("Medicamento no encontrado"));
     }
@@ -138,18 +139,44 @@ public class MedicamentoServiceImp implements MedicamentoService {
     }
 
     @Override
+    @Transactional
     public void editarMedicamento(Integer id, MedicamentoEditRequest dto) {
+
         Medicamento medicamento = obtenerMedicamentoPorId(id);
+
+        if (!medicamento.getActivo()) {
+            throw new IllegalStateException("No se puede editar un medicamento inactivo");
+        }
+
+        // Validar nombre duplicado (si cambia)
+        medicamentoRepo.findByNombre(dto.nombre()).ifPresent(m -> {
+            if (!m.getIdMedicamento().equals(id)) {
+                throw new IllegalArgumentException("Ya existe un medicamento con ese nombre");
+            }
+        });
+
         medicamento.setNombre(dto.nombre());
         medicamento.setDescripcion(dto.descripcion());
         medicamento.setPrecio(dto.precio());
+
         medicamentoRepo.save(medicamento);
     }
 
+
     @Override
+    @Transactional
     public void eliminarMedicamento(Integer id) {
 
+        Medicamento medicamento = obtenerMedicamentoPorId(id);
+
+        if (!medicamento.getActivo()) {
+            throw new IllegalStateException("El medicamento ya se encuentra inactivo");
+        }
+
+        medicamento.setActivo(false);
+        medicamentoRepo.save(medicamento);
     }
+
 
     private MedicamentoResponse mapearAResponse(Medicamento medicamento) {
         return new MedicamentoResponse(medicamento.getIdMedicamento(), medicamento.getNombre(), medicamento.getDescripcion(), medicamento.getPrecio(), medicamento.getStock());

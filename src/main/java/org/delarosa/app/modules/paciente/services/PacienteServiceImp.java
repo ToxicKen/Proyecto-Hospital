@@ -2,8 +2,8 @@ package org.delarosa.app.modules.paciente.services;
 
 import lombok.RequiredArgsConstructor;
 
-import org.delarosa.app.modules.paciente.dtos.ActualizarPacienteRequest;
 import org.delarosa.app.modules.general.dtos.PadecimientoRequest;
+import org.delarosa.app.modules.paciente.dtos.ActualizarPacienteRequest;
 import org.delarosa.app.modules.general.dtos.TelefonoDTO;
 import org.delarosa.app.modules.general.entities.Persona;
 import org.delarosa.app.modules.general.entities.PersonaTelefono;
@@ -118,166 +118,183 @@ public class PacienteServiceImp implements PacienteService {
         return alergiaRepo.findAll().stream().map(a->new AlergiaExistenteDTO(a.getIdAlergia(),a.getNombre())).toList();
     }
 
-
     @Override
     @Transactional
     public PacienteResponse actualizarPaciente(String correo, ActualizarPacienteRequest request) {
+
         Paciente paciente = obtenerPacienteByCorreo(correo);
 
-        if (paciente.getPersona() == null) {
-            throw new RuntimeException("El paciente no tiene información personal asociada");
-        }
+        validarPaciente(paciente);
 
-        if (paciente.getPersona().getUsuario() == null) {
-            throw new RuntimeException("El paciente no tiene usuario asociado");
-        }
-
-        // Actualizar datos de persona
         actualizarDatosPersona(paciente.getPersona(), request);
 
-        // Actualizar email de usuario
-        paciente.getPersona().getUsuario().setCorreoElectronico(request.email());
+        actualizarUsuario(paciente.getPersona().getUsuario(), request);
 
-        // Actualizar historial médico
         actualizarHistorialMedico(paciente, request);
 
-        // Actualizar alergias
-        actualizarAlergias(paciente,request);
-        // Actualizar padecimientos
-        //actualizarPadecimientos(paciente, request.padecimientos());
+        actualizarAlergias(paciente, request);
 
-        paciente = pacienteRepo.save(paciente);
+        pacienteRepo.save(paciente);
+
         return mapearPaciente(paciente);
     }
 
+
+    private void validarPaciente(Paciente paciente) {
+        if (paciente.getPersona() == null) {
+            throw new IllegalStateException("El paciente no tiene información personal asociada");
+        }
+
+        if (paciente.getPersona().getUsuario() == null) {
+            throw new IllegalStateException("El paciente no tiene usuario asociado");
+        }
+    }
+
+    private void actualizarUsuario(Usuario usuario, ActualizarPacienteRequest request) {
+        if (request.email() != null && !request.email().isBlank()) {
+            usuario.setCorreoElectronico(request.email());
+        }
+    }
+
+
     private void actualizarDatosPersona(Persona persona, ActualizarPacienteRequest request) {
+
         persona.setNombre(request.nombre());
         persona.setApellidoP(request.apellidoP());
         persona.setApellidoM(request.apellidoM());
         persona.setCurp(request.curp());
 
-        // Actualizar dirección (campos separados)
-        persona.setCalle(request.calle() != null ? request.calle() : "");
-        persona.setColonia(request.colonia() != null ? request.colonia() : "");
-        persona.setNumero(request.numero() != null ? request.numero() : "");
+        persona.setCalle(valorSeguro(request.calle()));
+        persona.setColonia(valorSeguro(request.colonia()));
+        persona.setNumero(valorSeguro(request.numero()));
 
-        // Actualizar teléfonos (a través de PersonaTelefono)
         actualizarTelefonos(persona, request.telefonos());
     }
 
+    private String valorSeguro(String valor) {
+        return valor != null ? valor.trim() : "";
+    }
+
+
     private void actualizarTelefonos(Persona persona, List<TelefonoDTO> telefonosDto) {
-        // Limpiar relaciones existentes
+
         persona.getTelefonos().clear();
 
-        if (telefonosDto != null && !telefonosDto.isEmpty()) {
-            int i = 1;
-            for (TelefonoDTO telDto : telefonosDto) {
-                if (telDto.numero() != null && !telDto.numero().trim().isEmpty()) {
-                    // Crear o buscar teléfono
-                    Telefono telefono = telefonoService.buscarOCrearTelefono(telDto.numero());
+        if (telefonosDto == null || telefonosDto.isEmpty()) {
+            return;
+        }
 
-                    // Crear relación PersonaTelefono
-                    PersonaTelefono personaTelefono = PersonaTelefono.builder()
-                            .persona(persona)
-                            .telefono(telefono)
-                            .tipo(telDto.tipo() != null ? telDto.tipo() : "movil")
-                            .build();
+        for (TelefonoDTO telDto : telefonosDto) {
 
-                    persona.addTelefono(personaTelefono);
-                }
+            if (telDto.numero() == null || telDto.numero().isBlank()) {
+                continue;
             }
+
+            Telefono telefono = telefonoService.buscarOCrearTelefono(telDto.numero());
+
+            PersonaTelefono personaTelefono = PersonaTelefono.builder()
+                    .persona(persona)
+                    .telefono(telefono)
+                    .tipo(telDto.tipo() != null ? telDto.tipo() : "MOVIL")
+                    .build();
+
+            persona.addTelefono(personaTelefono);
         }
     }
 
+
     private void actualizarHistorialMedico(Paciente paciente, ActualizarPacienteRequest request) {
+
         HistorialMedico historial = paciente.getHistorialMedico();
 
         if (historial == null) {
             historial = new HistorialMedico();
-            historial.setPaciente(paciente); // ¡IMPORTANTE!
+            historial.setPaciente(paciente);
             paciente.setHistorialMedico(historial);
         }
 
         historial.setPeso(request.peso());
         historial.setEstatura(request.estatura());
 
-        if (request.tipoSangre() != null && !request.tipoSangre().isEmpty()) {
+        if (request.tipoSangre() != null && !request.tipoSangre().isBlank()) {
             try {
                 historial.setTipoSangre(TipoSangre.valueOf(request.tipoSangre()));
             } catch (IllegalArgumentException e) {
-                historial.setTipoSangre(null);
+                throw new IllegalArgumentException("Tipo de sangre inválido");
             }
         } else {
             historial.setTipoSangre(null);
         }
     }
 
-    private void actualizarAlergias(Paciente paciente,ActualizarPacienteRequest dto) {
+
+    private void actualizarAlergias(Paciente paciente, ActualizarPacienteRequest dto) {
+
         paciente.getAlergias().clear();
-        if(!dto.idAlergias().isEmpty()) {
+
+        if (dto.idAlergias() != null) {
             for (Integer idAlergia : dto.idAlergias()) {
-            Alergia alergia = alergiaRepo.findById(idAlergia).orElseThrow(() -> new RuntimeException("Alergia no encontrada"));
+                Alergia alergia = alergiaRepo.findById(idAlergia)
+                        .orElseThrow(() -> new AlergiaNoEncontradaException("Alergia no encontrada"));
                 paciente.getAlergias().add(alergia);
             }
         }
-        if(!dto.nuevasAlergias().isEmpty()) {
+
+        if (dto.nuevasAlergias() != null) {
             for (String nombreAlergia : dto.nuevasAlergias()) {
                 paciente.getAlergias().add(crearNuevaAlergia(nombreAlergia));
             }
         }
     }
 
-//
-//    private void actualizarPadecimientos(Paciente paciente, List<PadecimientoRequest> padecimientosReq) {
-//        // Limpiar relaciones existentes
-//        if (paciente.getPadecimientos() != null) {
-//            paciente.getPadecimientos().clear();
-//        }
-//
-//        if (padecimientosReq != null && !padecimientosReq.isEmpty()) {
-//            for (PadecimientoRequest padecimientoReq : padecimientosReq) {
-//                String nombre = padecimientoReq.nombre();
-//                if (nombre != null && !nombre.trim().isEmpty()) {
-//                    String nombreLimpio = nombre.trim();
-//
-//                    // Buscar padecimiento
-//                    Optional<Padecimiento> padecimientoOpt = padecimientoRepo.findByNombre(nombreLimpio);
-//                    Padecimiento padecimiento;
-//
-//                    if (padecimientoOpt.isPresent()) {
-//                        padecimiento = padecimientoOpt.get();
-//                    } else {
-//                        // Crear nuevo padecimiento
-//                        padecimiento = new Padecimiento();
-//                        padecimiento.setNombre(nombreLimpio);
-//                        padecimiento = padecimientoRepo.save(padecimiento);
-//                    }
-//
-//                    // Crear ID compuesto
-//                    PacientePadecimientoId id = new PacientePadecimientoId();
-//                    id.setIdPaciente(paciente.getIdPaciente());
-//                    id.setIdPadecimiento(padecimiento.getIdPadecimiento());
-//
-//                    // Crear relación
-//                    PacientePadecimiento relacion = new PacientePadecimiento();
-//                    relacion.setIdPadecimientoPaciente(id);
-//                    relacion.setPaciente(paciente);
-//                    relacion.setPadecimiento(padecimiento);
-//
-//                    String descripcion = padecimientoReq.descripcion();
-//                    relacion.setDescripcion(descripcion != null ? descripcion.trim() : "");
-//
-//                    // Inicializar la lista si es null
-//                    if (paciente.getPadecimientos() == null) {
-//                        paciente.setPadecimientos(new ArrayList<>());
-//                    }
-//
-//                    paciente.getPadecimientos().add(relacion);
-//                }
-//            }
-//        }
-//    }
-//
+
+    private void actualizarPadecimientos(
+            Paciente paciente,
+            List<PadecimientoRequest> padecimientosReq
+    ) {
+
+        // Limpiar relaciones existentes (orphanRemoval se encarga del delete)
+        paciente.getPadecimientos().clear();
+
+        if (padecimientosReq == null || padecimientosReq.isEmpty()) {
+            return;
+        }
+
+        for (PadecimientoRequest req : padecimientosReq) {
+
+            if (req.nombre() == null || req.nombre().isBlank()) {
+                continue;
+            }
+
+            Padecimiento padecimiento = obtenerOCrearPadecimiento(req.nombre().trim());
+
+            PacientePadecimiento relacion = new PacientePadecimiento();
+            relacion.setPaciente(paciente);
+            relacion.setPadecimiento(padecimiento);
+            relacion.setDescripcion(
+                    req.descripcion() != null ? req.descripcion().trim() : ""
+            );
+
+            // ID compuesto
+            PacientePadecimientoId id = new PacientePadecimientoId(
+                    paciente.getIdPaciente(),
+                    padecimiento.getIdPadecimiento()
+            );
+            relacion.setIdPadecimientoPaciente(id);
+
+            paciente.getPadecimientos().add(relacion);
+        }
+    }
+
+    private Padecimiento obtenerOCrearPadecimiento(String nombre) {
+
+        return padecimientoRepo.findByNombre(nombre)
+                .orElseGet(() -> {
+                    Padecimiento nuevo = new Padecimiento();
+                    nuevo.setNombre(nombre);
+                    return padecimientoRepo.save(nuevo);
+                });
+    }
 
 
     // --- Metodos de apoyo---

@@ -3,6 +3,7 @@ package org.delarosa.app.modules.personal.services;
 import org.delarosa.app.modules.clinico.dtos.EspecialidadDTO;
 import org.delarosa.app.modules.personal.dtos.DoctorDatosCompletosResponse;
 import org.delarosa.app.modules.personal.dtos.DoctorDatosResponse;
+import org.delarosa.app.modules.personal.dtos.HorarioEmpleadoDTO;
 import org.delarosa.app.modules.personal.dtos.RegistroDoctorRequest;
 import org.delarosa.app.modules.personal.entities.Doctor;
 import org.delarosa.app.modules.security.dto.AuthResponse;
@@ -35,6 +36,7 @@ public interface DoctorService {
 
     Doctor obtenerDoctorByNombre(String nombre);
 
-
+    List<DoctorDatosResponse> consultarDoctores();
+    List<HorarioEmpleadoDTO> obtenerHorariosPorDoctor(Integer idDoctor);
 
 }

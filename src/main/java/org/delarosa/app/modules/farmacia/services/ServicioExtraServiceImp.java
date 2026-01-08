@@ -56,14 +56,17 @@ public class ServicioExtraServiceImp implements ServicioExtraService {
 
     }
 
+    @Override
+    public ServicioExtra obtenerServicioPorId(Integer id) {
+        Optional<ServicioExtra> servicio = servicioRepo.findById(id);
+        return servicio.orElseThrow(()->new RuntimeException("Servicio no encontrado"));
+    }
+
     private ServicioExtraResponse mapearServicioAResponse(ServicioExtra servicio) {
         return new ServicioExtraResponse(servicio.getIdServicioExtra(),servicio.getNombre(),servicio.getDescripcion(),servicio.getCosto(),servicio.getActivo());
     }
 
-    private ServicioExtra obtenerServicioPorId(Integer id) {
-        Optional<ServicioExtra> servicio = servicioRepo.findById(id);
-        return servicio.orElseThrow(()->new RuntimeException("Servicio no encontrado"));
-    }
+
 
 
 

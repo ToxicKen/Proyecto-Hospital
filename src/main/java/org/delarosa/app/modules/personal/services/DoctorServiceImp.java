@@ -8,15 +8,10 @@ import org.delarosa.app.modules.general.services.PersonaService;
 import org.delarosa.app.modules.personal.dtos.DoctorDatosCompletosResponse;
 import org.delarosa.app.modules.personal.dtos.DoctorDatosResponse;
 import org.delarosa.app.modules.personal.dtos.HorarioEmpleadoDTO;
-import org.delarosa.app.modules.personal.entities.Especialidad;
-import org.delarosa.app.modules.personal.entities.HorarioEmpleado;
-import org.delarosa.app.modules.personal.exceptions.EspecialidadNoEncontradaException;
+import org.delarosa.app.modules.personal.entities.*;
+import org.delarosa.app.modules.personal.exceptions.*;
 import org.delarosa.app.modules.personal.repositories.EspecialidadRepository;
 import org.delarosa.app.modules.personal.dtos.RegistroDoctorRequest;
-import org.delarosa.app.modules.personal.entities.Doctor;
-import org.delarosa.app.modules.personal.entities.Empleado;
-import org.delarosa.app.modules.personal.exceptions.ConsultorioNoEncontradoException;
-import org.delarosa.app.modules.personal.exceptions.DoctorNoEncontradoException;
 import org.delarosa.app.modules.personal.repositories.ConsultorioRepository;
 import org.delarosa.app.modules.personal.repositories.DoctorRepository;
 import org.delarosa.app.modules.personal.repositories.HorarioEmpleadoRepository;
@@ -61,18 +56,48 @@ public class DoctorServiceImp implements DoctorService {
     // --- Registro y Creación ---
 
     @Override
+    @Transactional
     public Doctor crearDoctor(RegistroDoctorRequest registroDoctorRequest) {
 
-        Empleado empleado = empleadoService.crearEmpleado(registroDoctorRequest.registroEmpleadoRequest());
+        // 1️⃣ Crear empleado
+        Empleado empleado = empleadoService.crearEmpleado(
+                registroDoctorRequest.registroEmpleadoRequest()
+        );
+
+        // 2️⃣ Asignar rol
         asignarRolDoctor(empleado.getPersona().getUsuario());
 
+        // 3️⃣ Crear doctor SIN relaciones aún
         Doctor doctor = Doctor.builder()
                 .empleado(empleado)
                 .cedulaProfesional(registroDoctorRequest.cedulaProfesional())
-                .especialidad(especialidadRepo.findById(registroDoctorRequest.idEspecialidad()).orElseThrow(() -> new EspecialidadNoEncontradaException("Especialidad no existente")))
-                .consultorio(consultorioRepo.findById(registroDoctorRequest.idConsultorio()).orElseThrow(() -> new ConsultorioNoEncontradoException("Consultorio no existente")))
                 .build();
+
+        // 4️⃣ Obtener especialidad
+        Especialidad especialidad = especialidadRepo.findById(
+                registroDoctorRequest.idEspecialidad()
+        ).orElseThrow(() ->
+                new EspecialidadNoEncontradaException("Especialidad no existente")
+        );
+
+        // 5️⃣ Obtener consultorio
+        Consultorio consultorio = consultorioRepo.findById(
+                registroDoctorRequest.idConsultorio()
+        ).orElseThrow(() ->
+                new ConsultorioNoEncontradoException("Consultorio no existente")
+        );
+
+        // 6️⃣ SINCRONIZAR RELACIONES (AQUÍ ESTÁ LA CLAVE 🔥)
+        especialidad.agregarDoctor(doctor);
+        consultorio.agregarDoctor(doctor);
+
+        // 7️⃣ Guardar
         return doctorRepo.save(doctor);
+    }
+
+    @Override
+    public List<DoctorDatosResponse> consultarDoctores() {
+        return doctorRepo.findAll().stream().map(this::mapearDoctor).toList();
     }
 
     // --- Obtener Doctor ---
@@ -93,7 +118,7 @@ public class DoctorServiceImp implements DoctorService {
 
     @Override
     public List<DoctorDatosResponse> obtenerDoctoresByEspecialidadId(Integer idEspecialidad) {
-        return doctorRepo.findAllByEspecialidadIdEspecialidad(idEspecialidad).stream().map(this::mapearDoctor).toList();
+        return doctorRepo.findAllByEspecialidadIdEspecialidad(idEspecialidad).stream().filter(m -> m.getEmpleado().getActivo() == true).map(this::mapearDoctor).toList();
     }
 
     // --- Obtener todos los días disponibles de un doctor
@@ -115,6 +140,12 @@ public class DoctorServiceImp implements DoctorService {
         }
 
         return diasDisponibles;
+    }
+
+
+    @Override
+    public List<HorarioEmpleadoDTO> obtenerHorariosPorDoctor(Integer idDoctor) {
+        return mapearHorarios(horarioEmpleadoRepo.findByEmpleadoIdEmpleado(idDoctor));
     }
 
     //Obtener Horas Laborales del doctor
@@ -140,6 +171,7 @@ public class DoctorServiceImp implements DoctorService {
     }
 
     //Dar de baja un doctor
+
     @Override
     public void darDeBajaDoctor(Integer idDoctor) {
         try {
@@ -154,12 +186,17 @@ public class DoctorServiceImp implements DoctorService {
             }
 
             if (mensajeError.contains("El doctor tiene citas pendientes")) {
-                throw new IllegalStateException("No se puede dar de baja: El doctor tiene citas pendientes o pagos sin procesar.");
+                throw new DoctorConCitasPendientesException(
+                        "No se puede dar de baja: El doctor tiene citas pendientes o pagos sin procesar."
+                );
             }
 
-            throw new RuntimeException("Error interno al procesar la baja del doctor.");
+            throw new DoctorBajaException(
+                    "Error interno al procesar la baja del doctor."
+            );
         }
     }
+
 
     @Override
     public Doctor obtenerDoctorByNombre(String nombre) {
@@ -185,7 +222,7 @@ public class DoctorServiceImp implements DoctorService {
     private DoctorDatosResponse mapearDoctor(Doctor doctor) {
         return new  DoctorDatosResponse(doctor.getIdDoctor(),
                 personaService.obtenerNombreCompletoPersona(doctor.getEmpleado().getPersona()),
-                doctor.getEspecialidad().getNombre(),doctor.getConsultorio().getIdConsultorio());
+                doctor.getEspecialidad().getNombre(),doctor.getConsultorio().getIdConsultorio(),doctor.getEmpleado().getActivo(),obtenerHorariosPorDoctor(doctor.getIdDoctor()));
     }
 
     private List<LocalTime> generarHorasDisponibles(LocalTime inicio, LocalTime fin) {
